@@ -11,3 +11,5 @@ venv
 *.sqlite
 
 .DS_Store
+
+Makefile

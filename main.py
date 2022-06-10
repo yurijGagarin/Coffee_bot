@@ -82,12 +82,12 @@ async def query_menu_items(sql_query):
 
 
 async def coffee(update: Update, context: CallbackContext.DEFAULT_TYPE):
-    if context.user_data['is_menu']:
+    if context.user_data.get('is_menu'):
         buttons = [
             [KeyboardButton("Назад до меню"), KeyboardButton("Головне меню")],
         ]
 
-        result = await query_menu_items('SELECT * FROM menu_item where is_coffee = TRUE')
+        result = await query_menu_items('SELECT * FROM menu_item where is_coffee = TRUE AND parent_id is NULL')
 
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text="ось тобі меню:\n" + "\n".join(result),
@@ -99,7 +99,7 @@ async def coffee(update: Update, context: CallbackContext.DEFAULT_TYPE):
         ]
 
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=" ",
+                                       text="123",
                                        reply_markup=ReplyKeyboardMarkup(buttons))
 
 
