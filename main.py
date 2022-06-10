@@ -36,6 +36,7 @@ async def start(update: Update, context: CallbackContext):
 
 async def menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
     context.user_data['is_menu'] = True
+    context.user_data['is_random'] = False
     if context.user_data.get("is_menu"):
         buttons = [
             [KeyboardButton("Напої")],
@@ -53,6 +54,7 @@ async def menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 async def random(update: Update, context: CallbackContext.DEFAULT_TYPE):
     context.user_data['is_random'] = True
+    context.user_data['is_menu'] = False
     buttons = [
         [KeyboardButton("Готовий")],
         [KeyboardButton("🏠")]
