@@ -15,6 +15,50 @@ logging.basicConfig(
 
 engine = create_async_engine(config.DB_DSN)
 
+def build_random_item_query(options):
+    sql = 'SELECT * FROM menu_item where '
+    conditions = []
+
+    for k, v in options.items():
+        if v is None:
+            s = "is NULL"
+        elif v is True:
+            s = "= True"
+        else:
+            s = "= False"
+        conditions.append(f'{k} {s}')
+    return sql + ' AND '.join(conditions) + ' ORDER BY RANDOM() LIMIT 1'
+
+
+def build_menu_item_query(options):
+    sql = 'SELECT * FROM menu_item where '
+    conditions = []
+
+    for k, v in options.items():
+        if v is None:
+            s = "is NULL"
+        elif v is True:
+            s = "= True"
+        else:
+            s = "= False"
+        conditions.append(f'{k} {s}')
+    return sql + ' AND '.join(conditions)
+
+async def query_menu_items(sql_query):
+    async_session = sessionmaker(
+        engine, expire_on_commit=False, class_=AsyncSession
+    )
+
+    result = []
+    async with async_session() as session:
+        r = await session.execute(sql_query)
+        results_as_dict = r.mappings().all()
+        for el in results_as_dict:
+            card = f'Назва: {(el["name"])}\nЦіна: {(el["price"])}\n'
+            result.append(card)
+
+    return result
+
 
 async def unknown(update: Update, context: CallbackContext.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Вибачте, я вас не зрозумів :(")
@@ -75,133 +119,95 @@ async def random(update: Update, context: CallbackContext.DEFAULT_TYPE):
 async def drinks(update: Update, context: CallbackContext.DEFAULT_TYPE):
     print('def drinks')
     print(context.user_data)
-    if context.user_data.get("is_menu"):
-        context.user_data["is_cold"] = None
+    context.user_data["is_cold"] = False
+    context.user_data["is_black_coffee"] = False
+    context.user_data["is_lact_free"] = False
+    context.user_data["is_milk"] = False
+    context.user_data["is_coffee"] = False
+    
+    if context.user_data.get("is_menu") or context.user_data.get("is_random"):
         buttons = [
-            [KeyboardButton("Так")],
-            [KeyboardButton("Ні")],
+            [KeyboardButton("Кава")],
+            [KeyboardButton("Інше")],
             [KeyboardButton("🏠")]
         ]
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text="Тобі спекотно:",
-                                       reply_markup=ReplyKeyboardMarkup(buttons))
-    elif context.user_data.get('is_random'):
-        context.user_data["is_cold"] = None
-        buttons = [
-            [KeyboardButton("Так")],
-            [KeyboardButton("Ні")],
-            [KeyboardButton("🏠")]
-        ]
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text="Тобі спекотно:",
+                                       text="Кава чи не Кава:",
                                        reply_markup=ReplyKeyboardMarkup(buttons))
     else:
         return await start(update, context)
 
 
-async def query_menu_items(sql_query):
-    async_session = sessionmaker(
-        engine, expire_on_commit=False, class_=AsyncSession
-    )
+async def cold(update: Update, context: CallbackContext):
+    if update.message['text'] == 'Кава':
+        context.user_data["is_coffee"] = True
+    if context.user_data.get("is_menu") or context.user_data.get("is_random"):
+        buttons = [
+            [KeyboardButton("Бажаю холодний")],
+            [KeyboardButton("Бажаю гарячий")],
+            [KeyboardButton("🏠")],
+        ]
 
-    result = []
-    async with async_session() as session:
-        r = await session.execute(sql_query)
-        results_as_dict = r.mappings().all()
-        for el in results_as_dict:
-            card = f'Назва: {(el["name"])}\nЦіна: {(el["price"])}\n'
-            result.append(card)
-
-    return result
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text="Холодний напій чи гарячий:",
+                                       reply_markup=ReplyKeyboardMarkup(buttons))
+    else:
+        return await start(update, context)
 
 
-async def coffee(update: Update, context: CallbackContext):
-    print('def coffee', context.user_data["is_cold"])
-    if update.message['text'] == 'Так':
+async def milk(update: Update, context: CallbackContext):
+    if update.message['text'] == "Бажаю холодний":
         context.user_data["is_cold"] = True
-        print('this is true')
-    elif update.message['text'] == 'Ні':
-        context.user_data["is_cold"] = False
-        print('this is false')
-    if context.user_data.get("is_menu"):
+
+    buttons = [
+        [KeyboardButton("Нічого проти молока не маю."), KeyboardButton("Лактоза не для мене.")],
+        [KeyboardButton("🏠")],
+    ]
+    if context.user_data["is_coffee"]:
         buttons = [
-            [KeyboardButton("Кава")],
-            [KeyboardButton("Інше")],
+            [KeyboardButton("Хочу просто чорної кави.")],
+            [KeyboardButton("Нічого проти молока не маю."), KeyboardButton("Лактоза не для мене.")],
             [KeyboardButton("🏠")],
         ]
 
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text="Кава чи не Кава:",
-                                       reply_markup=ReplyKeyboardMarkup(buttons))
-    elif context.user_data.get('is_random'):
-        buttons = [
-            [KeyboardButton("Кава")],
-            [KeyboardButton("Інше")],
-            [KeyboardButton("🏠")],
-        ]
+    if context.user_data.get("is_menu") or context.user_data.get("is_random"):
 
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text="Кава чи не Кава:",
+                                       text="З молоком чи ні:",
                                        reply_markup=ReplyKeyboardMarkup(buttons))
+
     else:
         return await start(update, context)
 
 
-# defaults = {
-#     'parent_id': None,
-# }
-def build_random_item_query(options):
-    sql = 'SELECT * FROM menu_item where '
-    conditions = []
-
-    for k, v in options.items():
-        if v is None:
-            s = "is NULL"
-        elif v is True:
-            s = "= True"
-        else:
-            s = "= False"
-        conditions.append(f'{k} {s}')
-    return sql + ' AND '.join(conditions) + ' ORDER BY RANDOM() LIMIT 1'
-
-
-def build_menu_item_query(options):
-    sql = 'SELECT * FROM menu_item where '
-    conditions = []
-
-    for k, v in options.items():
-        if v is None:
-            s = "is NULL"
-        elif v is True:
-            s = "= True"
-        else:
-            s = "= False"
-        conditions.append(f'{k} {s}')
-    return sql + ' AND '.join(conditions)
-
-
-async def coffee_or_not(update: Update, context: CallbackContext.DEFAULT_TYPE):
+async def final_step(update: Update, context: CallbackContext.DEFAULT_TYPE):
     print('def coffee+or_not')
-    check_data_cold = context.user_data["is_cold"]
-    is_coffee = update.message['text'] == 'Кава'
+    if update.message['text'] == 'Хочу просто чорної кави.':
+        context.user_data["is_black_coffee"] = True
+    elif update.message['text'] == 'Нічого проти молока не маю.':
+        context.user_data["is_milk"] = True
+    elif update.message['text'] == 'Лактоза не для мене.':
+        context.user_data["is_lact_free"] = True
+
     if context.user_data.get('is_menu'):
         buttons = [
             [KeyboardButton("Меню Закладу")],
             [KeyboardButton("🏠")],
         ]
 
-        print(check_data_cold, is_coffee)
-
         sql = build_menu_item_query({
-            'is_coffee': is_coffee,
+            'is_coffee': context.user_data["is_coffee"],
             'parent_id': None,
-            'is_cold': check_data_cold,
+            'is_cold': context.user_data["is_cold"],
+            'is_black_coffee': context.user_data["is_black_coffee"],
+            'is_milk': context.user_data["is_milk"],
+            'is_lact_free': context.user_data["is_lact_free"],
         })
         print("this  is SQL:", sql)
         result = await query_menu_items(sql)
 
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text="str\n" + "\n".join(result),
+                                       text="Тримай друже ☺️ :\n" + "\n".join(result),
                                        reply_markup=ReplyKeyboardMarkup(buttons))
 
     elif context.user_data.get('is_random'):
@@ -211,17 +217,18 @@ async def coffee_or_not(update: Update, context: CallbackContext.DEFAULT_TYPE):
             [KeyboardButton("🏠")],
         ]
 
-        print(check_data_cold, is_coffee)
-
         sql = build_random_item_query({
-            'is_coffee': is_coffee,
-            'is_cold': check_data_cold,
+            'is_coffee': context.user_data["is_coffee"],
+            'is_cold': context.user_data["is_cold"],
+            'is_black_coffee': context.user_data["is_black_coffee"],
+            'is_milk': context.user_data["is_milk"],
+            'is_lact_free': context.user_data["is_lact_free"],
         })
         print("this  is SQL:", sql)
         result = await query_menu_items(sql)
 
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text="str\n" + "\n".join(result),
+                                       text="Тримай друже ☺️ :\n" + "\n".join(result),
                                        reply_markup=ReplyKeyboardMarkup(buttons))
     else:
         return await start(update, context)
@@ -237,10 +244,13 @@ if __name__ == '__main__':
     application.add_handler(MessageHandler(filters.Regex('Готовий'), drinks))
     application.add_handler(MessageHandler(filters.Regex('Шо мені випити'), random))
     application.add_handler(MessageHandler(filters.Regex('Спробувати ще раз'), drinks))
-    application.add_handler(MessageHandler(filters.Regex('Так'), coffee))
-    application.add_handler(MessageHandler(filters.Regex('Ні'), coffee))
-    application.add_handler(MessageHandler(filters.Regex('Кава'), coffee_or_not))
-    application.add_handler(MessageHandler(filters.Regex('Інше'), coffee_or_not))
+    application.add_handler(MessageHandler(filters.Regex("Бажаю холодний"), milk))
+    application.add_handler(MessageHandler(filters.Regex("Бажаю гарячий"), milk))
+    application.add_handler(MessageHandler(filters.Regex('Хочу просто чорної кави.'), final_step))
+    application.add_handler(MessageHandler(filters.Regex('Нічого проти молока не маю.'), final_step))
+    application.add_handler(MessageHandler(filters.Regex('Лактоза не для мене'), final_step))
+    application.add_handler(MessageHandler(filters.Regex('Кава'), cold))
+    application.add_handler(MessageHandler(filters.Regex('Інше'), cold))
     application.add_handler(MessageHandler(filters.Regex('Назад до меню'), menu))
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), unknown))
 
