@@ -11,3 +11,5 @@ venv
 
 
 additional main.py
+
+.env
