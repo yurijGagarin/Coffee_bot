@@ -11,6 +11,3 @@ venv
 *.sqlite
 
 .DS_Store
-
-
-additional main.py
