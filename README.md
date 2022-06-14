@@ -3,7 +3,7 @@
 ## Setup
 
 - `pip install -r requirements.txt`
-- `cp config.py.example config.py`
-- Edit `config.py`
+- `cp .env.example .env`
+- Edit `.env`
 - `alembic upgrade head`
 - `python main.py`

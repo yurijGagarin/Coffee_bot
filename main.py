@@ -12,10 +12,10 @@ import config
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.DEBUG if config.DEBUG else logging.INFO
 )
 
-engine = create_async_engine(config.DB_DSN)
+engine = create_async_engine(config.DB_URI)
 
 
 def send_action(action):

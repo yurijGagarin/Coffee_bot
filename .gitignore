@@ -1,6 +1,3 @@
-# created by virtualenv automatically
-config.py
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -11,3 +8,6 @@ venv
 *.sqlite
 
 .DS_Store
+
+
+.env
