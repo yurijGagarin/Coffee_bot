@@ -28,3 +28,4 @@ urllib3==1.26.9
 aiosqlite==0.17.0
 alembic==1.8.0
 python-dotenv==0.20.0
+prettytable==22.1.2
