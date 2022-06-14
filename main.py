@@ -1,11 +1,13 @@
+import asyncio
 import logging
-
+import prettytable as pt
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 from telegram import *
+from telegram.constants import ParseMode, ChatAction
 from telegram.ext import *
-
+from functools import wraps
 import config
 
 logging.basicConfig(
@@ -15,19 +17,22 @@ logging.basicConfig(
 
 engine = create_async_engine(config.DB_URI)
 
-def build_random_item_query(options):
-    sql = 'SELECT * FROM menu_item where '
-    conditions = []
 
-    for k, v in options.items():
-        if v is None:
-            s = "is NULL"
-        elif v is True:
-            s = "= True"
-        else:
-            s = "= False"
-        conditions.append(f'{k} {s}')
-    return sql + ' AND '.join(conditions) + ' ORDER BY RANDOM() LIMIT 1'
+def send_action(action):
+    """Sends `action` while processing func command."""
+
+    def decorator(func):
+        @wraps(func)
+        async def command_func(update, context, *args, **kwargs):
+            await context.bot.send_chat_action(chat_id=update.effective_message.chat_id, action=action)
+            return await func(update, context, *args, **kwargs)
+
+        return command_func
+
+    return decorator
+
+
+send_typing_action = send_action(ChatAction.TYPING)
 
 
 def build_menu_item_query(options):
@@ -44,20 +49,26 @@ def build_menu_item_query(options):
         conditions.append(f'{k} {s}')
     return sql + ' AND '.join(conditions)
 
+
 async def query_menu_items(sql_query):
     async_session = sessionmaker(
         engine, expire_on_commit=False, class_=AsyncSession
     )
 
     result = []
+    print('parsing result', result)
+    table = pt.PrettyTable(['Назва', 'Ціна'])
+    table.align['Назва'] = 'l'
+    table.align['Ціна'] = 'r'
+
     async with async_session() as session:
         r = await session.execute(sql_query)
         results_as_dict = r.mappings().all()
         for el in results_as_dict:
-            card = f'Назва: {(el["name"])}\nЦіна: {(el["price"])}\n'
-            result.append(card)
-
-    return result
+            name = el["name"]
+            price = el["price"]
+            table.add_row([name, price])
+    return table
 
 
 async def unknown(update: Update, context: CallbackContext.DEFAULT_TYPE):
@@ -124,7 +135,7 @@ async def drinks(update: Update, context: CallbackContext.DEFAULT_TYPE):
     context.user_data["is_lact_free"] = False
     context.user_data["is_milk"] = False
     context.user_data["is_coffee"] = False
-    
+
     if context.user_data.get("is_menu") or context.user_data.get("is_random"):
         buttons = [
             [KeyboardButton("Кава")],
@@ -180,15 +191,17 @@ async def milk(update: Update, context: CallbackContext):
         return await start(update, context)
 
 
+@send_typing_action
 async def final_step(update: Update, context: CallbackContext.DEFAULT_TYPE):
     print('def coffee+or_not')
+    await asyncio.sleep(2)
     if update.message['text'] == 'Хочу просто чорної кави.':
         context.user_data["is_black_coffee"] = True
     elif update.message['text'] == 'Нічого проти молока не маю.':
         context.user_data["is_milk"] = True
     elif update.message['text'] == 'Лактоза не для мене.':
         context.user_data["is_lact_free"] = True
-
+    print("this is Update", update.message)
     if context.user_data.get('is_menu'):
         buttons = [
             [KeyboardButton("Меню Закладу")],
@@ -205,10 +218,13 @@ async def final_step(update: Update, context: CallbackContext.DEFAULT_TYPE):
         })
         print("this  is SQL:", sql)
         result = await query_menu_items(sql)
+        print("this is result_last", result)
 
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text="Тримай друже ☺️ :\n" + "\n".join(result),
-                                       reply_markup=ReplyKeyboardMarkup(buttons))
+                                       text='Тримай Друже☺️:\n\n\n' f'```{result}```',
+                                       reply_markup=ReplyKeyboardMarkup(buttons),
+                                       parse_mode=ParseMode.MARKDOWN_V2
+                                       )
 
     elif context.user_data.get('is_random'):
         buttons = [
@@ -217,19 +233,22 @@ async def final_step(update: Update, context: CallbackContext.DEFAULT_TYPE):
             [KeyboardButton("🏠")],
         ]
 
-        sql = build_random_item_query({
+        sql = build_menu_item_query({
             'is_coffee': context.user_data["is_coffee"],
             'is_cold': context.user_data["is_cold"],
             'is_black_coffee': context.user_data["is_black_coffee"],
             'is_milk': context.user_data["is_milk"],
             'is_lact_free': context.user_data["is_lact_free"],
-        })
+        }) + ' ORDER BY RANDOM() LIMIT 1'
         print("this  is SQL:", sql)
         result = await query_menu_items(sql)
+        print("this is result_last", result)
 
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text="Тримай друже ☺️ :\n" + "\n".join(result),
-                                       reply_markup=ReplyKeyboardMarkup(buttons))
+                                       text=f'```{result}```',
+                                       reply_markup=ReplyKeyboardMarkup(buttons),
+                                       parse_mode=ParseMode.MARKDOWN_V2
+                                       )
     else:
         return await start(update, context)
 
