@@ -43,44 +43,62 @@ MENU_DEFINITION = {
                                     "reply": "Оберіть",
                                     "buttons": [
                                         {
-                                            "title": "Чорна кава",
+                                            "title": "Без молока",
                                             "reply": "Оберіть",
                                             "callback_data": {
                                                 "is_coffee": True,
-                                                "is_cold": True,
                                                 "is_black_coffee": True,
+                                                "is_cold": True
+
                                             },
                                             "callback": "get_menu_items",
                                         },
                                         {
-                                            "title": "Молочна кава",
+                                            "title": "З молоком",
                                             "reply": "Оберіть",
-                                            "callback_data": {
-                                                "is_coffee": True,
-                                                "is_cold": True,
-                                                "is_milk": True,
-                                            },
-                                            "callback": "get_menu_items",
-                                        },
-                                        {
-                                            "title": "Альтернативно-молочна кава",
-                                            "reply": "Оберіть",
-                                            "callback_data": {
-                                                "is_coffee": True,
-                                                "is_cold": True,
-                                                "is_milk": True,
-                                                "is_lact_free": True,
-                                                "parent_id": NOT_NULL,
-                                            },
-                                            "callback": "get_menu_items",
+                                            "buttons": [
+                                                {
+                                                    "title": "Звичайне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_coffee": True,
+                                                        "is_milk": True,
+                                                        "is_cold": True
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                                {
+                                                    "title": "Без Лактозне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_coffee": True,
+                                                        "is_lact_free_milk": True,
+                                                        "is_cold": True
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                                {
+                                                    "title": "Рослинне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_coffee": True,
+                                                        "is_vegan_milk": True,
+                                                        "is_cold": True
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                            ]
                                         },
                                         {
                                             "title": "На фреші",
                                             "reply": "Оберіть",
                                             "callback_data": {
                                                 "is_coffee": True,
-                                                "is_cold": True,
                                                 "is_fresh": True,
+                                                "is_cold": True
                                             },
                                             "callback": "get_menu_items",
 
@@ -102,23 +120,40 @@ MENU_DEFINITION = {
                                             "callback": "get_menu_items",
                                         },
                                         {
-                                            "title": "Молочна кава",
+                                            "title": "З молоком",
                                             "reply": "Оберіть",
-                                            "callback_data": {
-                                                "is_coffee": True,
-                                                "is_milk": True,
-                                            },
-                                            "callback": "get_menu_items",
-                                        },
-                                        {
-                                            "title": "Альтернативно-молочна кава",
-                                            "reply": "Оберіть",
-                                            "callback_data": {
-                                                "is_coffee": True,
-                                                "is_milk": True,
-                                                "is_lact_free": True,
-                                            },
-                                            "callback": "get_menu_items",
+                                            "buttons": [
+                                                {
+                                                    "title": "Звичайне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_coffee": True,
+                                                        "is_milk": True,
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                                {
+                                                    "title": "Без Лактозне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_coffee": True,
+                                                        "is_lact_free_milk": True,
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                                {
+                                                    "title": "Рослинне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_coffee": True,
+                                                        "is_vegan_milk": True,
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                            ]
                                         },
                                         {
                                             "title": "На фреші",
@@ -154,31 +189,49 @@ MENU_DEFINITION = {
                                         {
                                             "title": "З молоком",
                                             "reply": "Оберіть",
-                                            "callback_data": {
-                                                "is_matcha": True,
-                                                "is_cold": True,
-                                                "is_milk": True,
-                                            },
-                                            "callback": "get_menu_items",
-                                        },
-                                        {
-                                            "title": "Альтернативно-молочна матча",
-                                            "reply": "Оберіть",
-                                            "callback_data": {
-                                                "is_matcha": True,
-                                                "is_cold": True,
-                                                "is_milk": True,
-                                                "is_lact_free": True,
-                                            },
-                                            "callback": "get_menu_items",
+                                            "buttons": [
+                                                {
+                                                    "title": "Звичайне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_matcha": True,
+                                                        "is_milk": True,
+                                                        "is_cold": True
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                                {
+                                                    "title": "Без Лактозне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_matcha": True,
+                                                        "is_lact_free_milk": True,
+                                                        "is_cold": True
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                                {
+                                                    "title": "Рослинне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_matcha": True,
+                                                        "is_vegan_milk": True,
+                                                        "is_cold": True
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                            ]
                                         },
                                         {
                                             "title": "На фреші",
                                             "reply": "Оберіть",
                                             "callback_data": {
                                                 "is_matcha": True,
-                                                "is_cold": True,
                                                 "is_fresh": True,
+                                                "is_cold": True
                                             },
                                             "callback": "get_menu_items",
 
@@ -201,21 +254,38 @@ MENU_DEFINITION = {
                                         {
                                             "title": "З молоком",
                                             "reply": "Оберіть",
-                                            "callback_data": {
-                                                "is_matcha": True,
-                                                "is_milk": True,
-                                            },
-                                            "callback": "get_menu_items",
-                                        },
-                                        {
-                                            "title": "Альтернативно-молочна матча",
-                                            "reply": "Оберіть",
-                                            "callback_data": {
-                                                "is_matcha": True,
-                                                "is_milk": True,
-                                                "is_lact_free": True,
-                                            },
-                                            "callback": "get_menu_items",
+                                            "buttons": [
+                                                {
+                                                    "title": "Звичайне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_matcha": True,
+                                                        "is_milk": True,
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                                {
+                                                    "title": "Без Лактозне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_matcha": True,
+                                                        "is_lact_free_milk": True,
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                                {
+                                                    "title": "Рослинне",
+                                                    "reply": "Оберіть",
+                                                    "callback_data": {
+                                                        "is_matcha": True,
+                                                        "is_vegan_milk": True,
+
+                                                    },
+                                                    "callback": "get_menu_items",
+                                                },
+                                            ]
                                         },
                                         {
                                             "title": "На фреші",
@@ -293,7 +363,8 @@ def build_menu_item_query(options):
     defaults = {} if skip_defaults else {
         "is_coffee": False,
         "is_milk": False,
-        "is_lact_free": False,
+        "is_lact_free_milk": False,
+        "is_vegan_milk": False,
         "is_tea": False,
         "is_matcha": False,
         "is_cold": False,
