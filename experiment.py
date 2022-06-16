@@ -69,7 +69,7 @@ MENU_DEFINITION = {
                                                     "callback": "get_menu_items",
                                                 },
                                                 {
-                                                    "title": "Без Лактозне",
+                                                    "title": "Безлактозне",
                                                     "reply": "Оберіть",
                                                     "callback_data": {
                                                         "is_coffee": True,
@@ -134,7 +134,7 @@ MENU_DEFINITION = {
                                                     "callback": "get_menu_items",
                                                 },
                                                 {
-                                                    "title": "Без Лактозне",
+                                                    "title": "Безлактозне",
                                                     "reply": "Оберіть",
                                                     "callback_data": {
                                                         "is_coffee": True,
@@ -202,7 +202,7 @@ MENU_DEFINITION = {
                                                     "callback": "get_menu_items",
                                                 },
                                                 {
-                                                    "title": "Без Лактозне",
+                                                    "title": "Безлактозне",
                                                     "reply": "Оберіть",
                                                     "callback_data": {
                                                         "is_matcha": True,
@@ -266,7 +266,7 @@ MENU_DEFINITION = {
                                                     "callback": "get_menu_items",
                                                 },
                                                 {
-                                                    "title": "Без Лактозне",
+                                                    "title": "Безлактозне",
                                                     "reply": "Оберіть",
                                                     "callback_data": {
                                                         "is_matcha": True,
