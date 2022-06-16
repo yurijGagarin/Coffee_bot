@@ -339,10 +339,18 @@ MENU_DEFINITION = {
         },
         {
             "title": "Шо мені випити?",
+            "callback_data": {
+                "skip_defaults": True
+            },
+            "callback": "get_random_item",
             "buttons": [
                 {
-                    "title": "Вибір",
-                    "context_key": "is_random",
+                    "title": "🎲",
+                    "callback_data": {
+                        "skip_defaults": True
+                    },
+                    "callback": "get_random_item",
+
                 },
             ]
         },
@@ -381,7 +389,10 @@ def build_menu_item_query(options):
         else:
             s = "= False"
         conditions.append(f'{k} {s}')
-    return sql + ' AND '.join(conditions)
+
+    if len(conditions) > 0:
+        return sql + ' AND '.join(conditions)
+    return sql[:-6]
 
 
 async def query_menu_items(sql_query):
@@ -416,8 +427,8 @@ async def get_menu_items(data, args):
 
 
 async def get_random_item(data, args):
-    sql = build_menu_item_query(data) + ' ORDER BY RANDOM() LIMIT 1'
-
+    sql = build_menu_item_query(data) + 'ORDER BY RANDOM() LIMIT 1'
+    print("this is query:", sql)
     result = await query_menu_items(sql)
     args['text'] = 'Тримай Друже☺️:\n\n\n' f'```{result}```'
     args['parse_mode'] = ParseMode.MARKDOWN_V2
@@ -431,7 +442,6 @@ async def get_active_item(update: Update, context: CallbackContext):
     active_item = MENU_DEFINITION
     for index in session_context:
         active_item = active_item['buttons'][index]
-    # print('active item:', active_item['reply'])
 
     message = update.message.text
 
@@ -448,6 +458,10 @@ async def get_active_item(update: Update, context: CallbackContext):
         for index in session_context:
             new_item = new_item['buttons'][index]
         return new_item
+    elif message == '🎲' and len(session_context):
+        context.user_data['session_context'] = session_context
+        new_item = MENU_DEFINITION["buttons"][1]
+        return new_item
     else:
         for i in range(len(active_item['buttons'])):
             button = active_item['buttons'][i]
@@ -455,7 +469,6 @@ async def get_active_item(update: Update, context: CallbackContext):
                 session_context.append(i)
                 context.user_data['session_context'] = session_context
                 return button
-
         await context.bot.send_message(chat_id=update.effective_chat.id, text=MISUNDERSTOOD_TEXT)
         return active_item
 
