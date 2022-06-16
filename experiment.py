@@ -1,13 +1,14 @@
-import asyncio
 import logging
+import random
+
 import prettytable as pt
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 from telegram import *
-from telegram.constants import ParseMode, ChatAction
+from telegram.constants import ParseMode
 from telegram.ext import *
-from functools import wraps
+
 import config
 
 logging.basicConfig(
@@ -17,114 +18,254 @@ logging.basicConfig(
 
 engine = create_async_engine(config.DB_URI)
 
+HOME_BUTTON = '🏠'
 BACK_TEXT = 'Назад'
-DEFAULT_TEXT = "Вибачте, не зрозумів вас"
-
+MISUNDERSTOOD_TEXT = "Вибачте, не зрозумів вас"
+DEFAULT_TEXTS = [':)', '😊']
+NOT_NULL = "not Null"
 MENU_DEFINITION = {
-    "message": "Вітаємо",
+    "reply": "Вітаємо в Діджиталізованому Мускаті",
     "buttons": [
         {
             "title": "Меню",
-            # "context_key": "is_menu",
             "reply": "Оберіть розділ",
-            "has_back": True,
             "buttons": [
                 {
                     "title": "Напої",
-                    # "context_key": "is_drink"
                     "reply": "Оберіть",
-                    "has_back": True,
                     "buttons": [
                         {
                             "title": "Кава",
-                            "context_key": "",
                             "reply": "Оберіть",
-                            "has_back": True,
                             "buttons": [
                                 {
                                     "title": "Холодна",
                                     "reply": "Оберіть",
-                                    "context_key": "",
-                                    "has_back": True,
                                     "buttons": [
                                         {
                                             "title": "Чорна кава",
                                             "reply": "Оберіть",
-                                            "context_key": "",
-                                            "has_back": True,
                                             "callback_data": {
                                                 "is_coffee": True,
                                                 "is_cold": True,
                                                 "is_black_coffee": True,
-                                                "is_milk": False,
                                             },
                                             "callback": "get_menu_items",
                                         },
                                         {
                                             "title": "Молочна кава",
-                                            "context_key": "",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_coffee": True,
+                                                "is_cold": True,
+                                                "is_milk": True,
+                                            },
+                                            "callback": "get_menu_items",
                                         },
                                         {
                                             "title": "Альтернативно-молочна кава",
-                                            "context_key": "",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_coffee": True,
+                                                "is_cold": True,
+                                                "is_milk": True,
+                                                "is_lact_free": True,
+                                                "parent_id": NOT_NULL,
+                                            },
+                                            "callback": "get_menu_items",
                                         },
                                         {
                                             "title": "На фреші",
-                                            "context_key": "",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_coffee": True,
+                                                "is_cold": True,
+                                                "is_fresh": True,
+                                            },
+                                            "callback": "get_menu_items",
 
                                         },
                                     ]
                                 },
                                 {
                                     "title": "Гаряча",
-                                    "context_key": "",
-                                    "buttons": [
-
-                                    ],
-                                },
-                            ]
-                        },
-                        {
-                            "title": "Інше",
-                            "context_key": "",
-                            "buttons": [
-                                {
-                                    "title": "Холодне",
-                                    "context_key": "",
+                                    "reply": "Оберіть",
                                     "buttons": [
                                         {
-                                            "title": "З молоком",
-                                            "context_key": "",
+                                            "title": "Чорна кава",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_coffee": True,
+                                                "is_black_coffee": True,
+
+                                            },
+                                            "callback": "get_menu_items",
                                         },
                                         {
-                                            "title": "З альтернативним молоком",
-                                            "context_key": "",
+                                            "title": "Молочна кава",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_coffee": True,
+                                                "is_milk": True,
+                                            },
+                                            "callback": "get_menu_items",
+                                        },
+                                        {
+                                            "title": "Альтернативно-молочна кава",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_coffee": True,
+                                                "is_milk": True,
+                                                "is_lact_free": True,
+                                            },
+                                            "callback": "get_menu_items",
                                         },
                                         {
                                             "title": "На фреші",
-                                            "context_key": "",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_coffee": True,
+                                                "is_fresh": True,
+                                            },
+                                            "callback": "get_menu_items",
 
                                         },
-                                    ]
-                                },
-                                {
-                                    "title": "Гаряче",
-                                    "context_key": "",
-                                    "buttons": [
-
                                     ]
                                 },
                             ]
                         },
                         {
-                            "title": "Десерти",
+                            "title": "Матча",
+                            "reply": "Оберіть",
                             "buttons": [
+                                {
+                                    "title": "Холодна",
+                                    "reply": "Оберіть",
+                                    "buttons": [
+                                        {
+                                            "title": "Без молока",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_matcha": True,
+                                                "is_cold": True,
+                                            },
+                                            "callback": "get_menu_items",
+                                        },
+                                        {
+                                            "title": "З молоком",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_matcha": True,
+                                                "is_cold": True,
+                                                "is_milk": True,
+                                            },
+                                            "callback": "get_menu_items",
+                                        },
+                                        {
+                                            "title": "Альтернативно-молочна матча",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_matcha": True,
+                                                "is_cold": True,
+                                                "is_milk": True,
+                                                "is_lact_free": True,
+                                            },
+                                            "callback": "get_menu_items",
+                                        },
+                                        {
+                                            "title": "На фреші",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_matcha": True,
+                                                "is_cold": True,
+                                                "is_fresh": True,
+                                            },
+                                            "callback": "get_menu_items",
 
-                            ],
+                                        },
+                                    ]
+                                },
+                                {
+                                    "title": "Гаряча",
+                                    "reply": "Оберіть",
+                                    "buttons": [
+                                        {
+                                            "title": "Без молока",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_matcha": True,
+
+                                            },
+                                            "callback": "get_menu_items",
+                                        },
+                                        {
+                                            "title": "З молоком",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_matcha": True,
+                                                "is_milk": True,
+                                            },
+                                            "callback": "get_menu_items",
+                                        },
+                                        {
+                                            "title": "Альтернативно-молочна матча",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_matcha": True,
+                                                "is_milk": True,
+                                                "is_lact_free": True,
+                                            },
+                                            "callback": "get_menu_items",
+                                        },
+                                        {
+                                            "title": "На фреші",
+                                            "reply": "Оберіть",
+                                            "callback_data": {
+                                                "is_matcha": True,
+                                                "is_fresh": True,
+                                            },
+                                            "callback": "get_menu_items",
+
+                                        },
+                                    ]
+                                },
+                            ]
                         },
+                        {
+                            "title": "Чай",
+                            "reply": "Оберіть",
+                            "callback_data": {
+                                "is_tea": True,
+
+                            },
+                            "callback": "get_menu_items",
+                        },
+                        {
+                            "title": "Інше",
+                            "reply": "Оберіть",
+                            "callback_data": {
+                                "is_other": True,
+                                "skip_defaults": True
+                            },
+                            "callback": "get_menu_items",
+
+                        },
+
                     ]
                 },
-            ]
+                {
+                    "title": "Десерти",
+                    "reply": '''
+                    РОЗДІЛ В РОЗРОБЦІ
+Вибачте за незручності.
+Слідкуйте за новинами нашого бота щоб бути в курсі новин.
+                                ''',
+                    "buttons": [
+
+                    ],
+                },
+
+            ],
         },
         {
             "title": "Шо мені випити?",
@@ -135,7 +276,7 @@ MENU_DEFINITION = {
                 },
             ]
         },
-    ],
+    ]
 }
 
 
@@ -143,11 +284,28 @@ def build_menu_item_query(options):
     sql = 'SELECT * FROM menu_item where '
     conditions = []
 
-    for k, v in options.items():
+    skip_defaults = False
+    if "skip_defaults" in options:
+        del options['skip_defaults']
+        skip_defaults = True
+
+    defaults = {} if skip_defaults else {
+        "is_coffee": False,
+        "is_milk": False,
+        "is_lact_free": False,
+        "is_tea": False,
+        "is_matcha": False,
+        "is_cold": False,
+        "is_black_coffee": False,
+        "is_fresh": False,
+    }
+    for k, v in (defaults | options).items():
         if v is None:
             s = "is NULL"
         elif v is True:
             s = "= True"
+        elif v == NOT_NULL:
+            s = "is not NULL"
         else:
             s = "= False"
         conditions.append(f'{k} {s}')
@@ -177,7 +335,7 @@ async def query_menu_items(sql_query):
 
 async def get_menu_items(data, args):
     sql = build_menu_item_query(data)
-
+    print("this is query:", sql)
     result = await query_menu_items(sql)
     args['text'] = 'Тримай Друже☺️:\n\n\n' f'```{result}```'
     args['parse_mode'] = ParseMode.MARKDOWN_V2
@@ -185,7 +343,7 @@ async def get_menu_items(data, args):
     return args
 
 
-def get_random_item(data, args):
+async def get_random_item(data, args):
     sql = build_menu_item_query(data) + ' ORDER BY RANDOM() LIMIT 1'
 
     result = await query_menu_items(sql)
@@ -195,64 +353,76 @@ def get_random_item(data, args):
     return args
 
 
-async def handler(update: Update, context: CallbackContext):
+async def get_active_item(update: Update, context: CallbackContext):
     session_context = context.user_data.get('session_context') or []
     print('session_context:', session_context)
+    active_item = MENU_DEFINITION
+    for index in session_context:
+        active_item = active_item['buttons'][index]
+    # print('active item:', active_item['reply'])
 
     message = update.message.text
 
-    active_item = MENU_DEFINITION
+    if message == HOME_BUTTON:
+        context.user_data['session_context'] = []
+        active_item = MENU_DEFINITION.copy()
+        active_item['reply'] = 'Давай спробуємо знову 😁'
+        return active_item
 
-    if message == BACK_TEXT:
+    elif message == BACK_TEXT and len(session_context):
         session_context = session_context[:-1]
-
+        context.user_data['session_context'] = session_context
+        new_item = MENU_DEFINITION
         for index in session_context:
-            active_item = active_item['buttons'][index]
-
-        selected_button = active_item
+            new_item = new_item['buttons'][index]
+        return new_item
     else:
-
-        for index in session_context:
-            active_item = active_item['buttons'][index]
-
-        selected_button = None
-        selected_index = None
         for i in range(len(active_item['buttons'])):
             button = active_item['buttons'][i]
             if message == button['title']:
-                selected_button = button
-                selected_index = i
-                break
+                session_context.append(i)
+                context.user_data['session_context'] = session_context
+                return button
 
-        session_context.append(selected_index)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=MISUNDERSTOOD_TEXT)
+        return active_item
 
-    if selected_button is None:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=DEFAULT_TEXT)
-        return await start(update, context)
 
-    context.user_data['session_context'] = session_context
+async def reply(update: Update, context: CallbackContext, active_item):
+    session_context = context.user_data.get('session_context') or []
 
     buttons = []
-    if 'buttons' in selected_button:
-        buttons = [[KeyboardButton(item['title'])] for item in selected_button['buttons']]
+    if 'buttons' in active_item:
+        buttons = [[KeyboardButton(item['title'])] for item in active_item['buttons']]
 
-    if 'has_back' in selected_button:
-        buttons.append([KeyboardButton(BACK_TEXT)])
+    if len(session_context) > 0:
+        additional_buttons = [KeyboardButton(BACK_TEXT)]
+        if len(session_context) > 1:
+            additional_buttons.append(KeyboardButton(HOME_BUTTON))
+        buttons.append(additional_buttons)
 
     args = {
         'chat_id': update.effective_chat.id,
-        'text': selected_button.get('reply') or DEFAULT_TEXT,
+        'text': active_item.get('reply') or random.choice(DEFAULT_TEXTS),
     }
 
-    if "callback" in selected_button:
-        if selected_button["callback"] == "get_menu_items":
-            args = await get_menu_items(selected_button.get("callback_data"), args)
-        elif selected_button["callback"] == "get_random_item":
-            args = await get_random_item(selected_button.get("callback_data"), args)
+    if "callback" in active_item:
+        if active_item["callback"] == "get_menu_items":
+            args = await get_menu_items(active_item.get("callback_data"), args)
+        elif active_item["callback"] == "get_random_item":
+            args = await get_random_item(active_item.get("callback_data"), args)
 
     args['reply_markup'] = ReplyKeyboardMarkup(buttons)
 
     return await context.bot.send_message(**args)
+
+
+async def handler(update: Update, context: CallbackContext):
+    active_item = await get_active_item(update=update, context=context)
+
+    print(active_item.get('reply'))
+
+    return await reply(update=update, context=context, active_item=active_item)
 
 
 async def start(update: Update, context: CallbackContext):
@@ -260,13 +430,21 @@ async def start(update: Update, context: CallbackContext):
 
     context.user_data['session_context'] = []
 
-    buttons = [[KeyboardButton(item['title'])] for item in MENU_DEFINITION['buttons']]
+    await reply(update, context, MENU_DEFINITION)
 
-    reply_markup = ReplyKeyboardMarkup(buttons)
-    text = "Вітаємо в Діджиталізованому Мускаті"
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=text,
-                                   reply_markup=reply_markup)
+
+# async def start_2(update: Update, context: CallbackContext):
+#     print("def start this is context.user.data", context.user_data)
+#
+#     context.user_data['session_context'] = []
+#
+#     buttons = [[KeyboardButton(item['title'])] for item in MENU_DEFINITION['buttons']]
+#
+#     reply_markup = ReplyKeyboardMarkup(buttons)
+#     text = "😁"
+#     await context.bot.send_message(chat_id=update.effective_chat.id,
+#                                    text=text,
+#                                    reply_markup=reply_markup)
 
 
 if __name__ == '__main__':
@@ -274,5 +452,6 @@ if __name__ == '__main__':
 
     application.add_handler(CommandHandler('start', start))
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handler))
+    # application.add_handler(MessageHandler(filters.ALL, handler))
 
     application.run_polling()
