@@ -281,6 +281,7 @@ MENU_DEFINITION = {
 
 
 def build_menu_item_query(options):
+    options = options.copy()
     sql = 'SELECT * FROM menu_item where '
     conditions = []
 

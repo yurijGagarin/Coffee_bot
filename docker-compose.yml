@@ -1,0 +1,8 @@
+version: "3.3"
+
+services:
+  bot:
+    build: .
+    environment:
+      DB_URI: '${DB_URI}'
+      TOKEN: '${TOKEN}'
