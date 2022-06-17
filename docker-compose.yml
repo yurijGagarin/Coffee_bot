@@ -6,3 +6,8 @@ services:
     environment:
       DB_URI: '${DB_URI}'
       TOKEN: '${TOKEN}'
+      DEBUG: '${DEBUG}'
+    restart: always
+    logging:
+        options:
+            max-size: 1m
