@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 
 engine = create_async_engine(config.DB_URI)
-
+ROLL_BUTTON = '🎲'
 HOME_BUTTON = '🏠'
 BACK_TEXT = 'Назад'
 MISUNDERSTOOD_TEXT = "Вибачте, не зрозумів вас"
@@ -170,7 +170,7 @@ MENU_DEFINITION = {
                             ]
                         },
                         {
-                            "title": "Матча",
+                            "title": "Маття",
                             "reply": "Оберіть",
                             "buttons": [
                                 {
@@ -325,14 +325,15 @@ MENU_DEFINITION = {
                 },
                 {
                     "title": "Десерти",
-                    "reply": '''
-                    РОЗДІЛ В РОЗРОБЦІ
-Вибачте за незручності.
-Слідкуйте за новинами нашого бота щоб бути в курсі новин.
-                                ''',
+                    # "reply": "Тут ви зможете ознайомитись з тим, які десерти в нас бувають. ",
                     "buttons": [
 
                     ],
+                    "callback_data": {
+                        "is_deserts": True,
+                        "skip_defaults": True
+                    },
+                    "callback": "get_menu_items",
                 },
 
             ],
@@ -340,14 +341,16 @@ MENU_DEFINITION = {
         {
             "title": "Шо мені випити?",
             "callback_data": {
-                "skip_defaults": True
+                "skip_defaults": True,
+                "is_deserts": False
             },
             "callback": "get_random_item",
             "buttons": [
                 {
-                    "title": "🎲",
+                    "title": ROLL_BUTTON,
                     "callback_data": {
-                        "skip_defaults": True
+                        "skip_defaults": True,
+                        "is_deserts": False
                     },
                     "callback": "get_random_item",
 
@@ -390,9 +393,7 @@ def build_menu_item_query(options):
             s = "= False"
         conditions.append(f'{k} {s}')
 
-    if len(conditions) > 0:
-        return sql + ' AND '.join(conditions)
-    return sql[:-6]
+    return sql + ' AND '.join(conditions)
 
 
 async def query_menu_items(sql_query):
@@ -427,7 +428,7 @@ async def get_menu_items(data, args):
 
 
 async def get_random_item(data, args):
-    sql = build_menu_item_query(data) + 'ORDER BY RANDOM() LIMIT 1'
+    sql = build_menu_item_query(data) + ' ORDER BY RANDOM() LIMIT 1'
     print("this is query:", sql)
     result = await query_menu_items(sql)
     args['text'] = 'Тримай Друже☺️:\n\n\n' f'```{result}```'
@@ -458,7 +459,7 @@ async def get_active_item(update: Update, context: CallbackContext):
         for index in session_context:
             new_item = new_item['buttons'][index]
         return new_item
-    elif message == '🎲' and len(session_context):
+    elif message == ROLL_BUTTON and len(session_context):
         context.user_data['session_context'] = session_context
         new_item = MENU_DEFINITION["buttons"][1]
         return new_item
@@ -516,20 +517,6 @@ async def start(update: Update, context: CallbackContext):
     context.user_data['session_context'] = []
 
     await reply(update, context, MENU_DEFINITION)
-
-
-# async def start_2(update: Update, context: CallbackContext):
-#     print("def start this is context.user.data", context.user_data)
-#
-#     context.user_data['session_context'] = []
-#
-#     buttons = [[KeyboardButton(item['title'])] for item in MENU_DEFINITION['buttons']]
-#
-#     reply_markup = ReplyKeyboardMarkup(buttons)
-#     text = "😁"
-#     await context.bot.send_message(chat_id=update.effective_chat.id,
-#                                    text=text,
-#                                    reply_markup=reply_markup)
 
 
 if __name__ == '__main__':

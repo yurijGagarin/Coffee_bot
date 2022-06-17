@@ -31,6 +31,7 @@ def upgrade() -> None:
         sa.Column('is_black_coffee', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_fresh', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_other', sa.Boolean, nullable=False, server_default='0'),
+        sa.Column('is_deserts', sa.Boolean, nullable=False, server_default='0'),
 
     )
 
@@ -49,19 +50,19 @@ def upgrade() -> None:
         {'name': 'Капучино 🌿', 'price': 60, 'is_coffee': True,
          'is_vegan_milk': True},
         {'name': 'Лате', 'price': 45, 'is_coffee': True, 'is_milk': True},
-        {'name': 'Лате [Cold]', 'price': 45, 'is_coffee': True, 'is_milk': True, 'is_cold': True},
+        {'name': 'Айс Лате', 'price': 45, 'is_coffee': True, 'is_milk': True, 'is_cold': True},
         {'name': 'Айс Беррі Лате', 'price': 55, 'is_coffee': True, 'is_milk': True, 'is_cold': True},
         {'name': 'Айс Беррі Лате 🐮🚫', 'price': 65, 'is_coffee': True,
          'is_lact_free_milk': True, 'is_cold': True},
         {'name': 'Айс Беррі Лате 🌿', 'price': 75, 'is_coffee': True,
          'is_vegan_milk': True, 'is_cold': True},
-        {'name': 'Лате 🐮🚫','price': 55, 'is_coffee': True,
+        {'name': 'Лате 🐮🚫', 'price': 55, 'is_coffee': True,
          'is_lact_free_milk': True},
-        {'name': 'Лате 🐮🚫 [Cold]','price': 55, 'is_coffee': True,
+        {'name': 'Айс Лате 🐮🚫', 'price': 55, 'is_coffee': True,
          'is_lact_free_milk': True, 'is_cold': True},
-        {'name': 'Лате 🌿','price': 65, 'is_coffee': True,
+        {'name': 'Лате 🌿', 'price': 65, 'is_coffee': True,
          'is_vegan_milk': True},
-        {'name': 'Лате 🌿 [Cold]','price': 65, 'is_coffee': True,
+        {'name': 'Айс Лате 🌿', 'price': 65, 'is_coffee': True,
          'is_vegan_milk': True, 'is_cold': True},
         {'name': 'Флет Уайт', 'price': 45, 'is_coffee': True, 'is_milk': True},
         {'name': 'Флет Уайт 🐮🚫', 'price': 55, 'is_coffee': True,
@@ -74,29 +75,26 @@ def upgrade() -> None:
         {'name': 'Подвійний Капучино 🌿', 'price': 70, 'is_coffee': True, 'is_milk': True,
          'is_vegan_milk': True},
         {'name': 'Раф', 'price': 65, 'is_coffee': True, 'is_milk': True},
-        {'name': 'Раф [Cold]', 'price': 65, 'is_coffee': True, 'is_milk': True, 'is_cold': True},
+        {'name': 'Айс Раф', 'price': 65, 'is_coffee': True, 'is_milk': True, 'is_cold': True},
         {'name': 'Раф 🐮🚫', 'price': 75, 'is_coffee': True,
          'is_lact_free_milk': True},
-        {'name': 'Раф 🐮🚫 [Cold]', 'price': 75, 'is_coffee': True,
+        {'name': 'АЙс Раф 🐮🚫', 'price': 75, 'is_coffee': True,
          'is_cold': True, 'is_lact_free_milk': True},
         {'name': 'Раф 🌿', 'price': 85, 'is_coffee': True,
          'is_vegan_milk': True},
-        {'name': 'Раф 🌿 [Cold]', 'price': 85, 'is_coffee': True,
+        {'name': 'Айс Раф 🌿', 'price': 85, 'is_coffee': True,
          'is_cold': True, 'is_vegan_milk': True},
-        {'name': 'Капуоранж', 'price': 70, 'is_coffee': True,  'is_fresh': True},
-        {'name': 'Капуоранж [Cold]', 'price': 70, 'is_coffee': True,  'is_fresh': True, 'is_cold': True},
-
-
+        {'name': 'Капуоранж', 'price': 70, 'is_coffee': True, 'is_fresh': True},
+        {'name': 'Бамбл', 'price': 70, 'is_coffee': True, 'is_fresh': True, 'is_cold': True},
 
         {'name': 'Какао', 'price': 55, 'is_other': True, 'is_milk': True},
-        {'name': 'Какао [Cold]', 'price': 55, 'is_other': True, 'is_milk': True, 'is_cold': True},
+        {'name': 'АЙс Какао', 'price': 55, 'is_other': True, 'is_milk': True, 'is_cold': True},
         {'name': 'Какао 🐮🚫', 'price': 65, 'is_other': True, 'is_lact_free_milk': True},
-        {'name': 'Какао 🐮🚫 [Cold]', 'price': 65, 'is_other': True,
+        {'name': 'Айс Какао 🐮🚫', 'price': 65, 'is_other': True,
          'is_lact_free_milk': True, 'is_cold': True},
         {'name': 'Какао 🌿', 'price': 75, 'is_other': True, 'is_vegan_milk': True},
-        {'name': 'Какао 🌿 [Cold]', 'price': 75, 'is_other': True, 'is_vegan_milk': True,
+        {'name': 'Айс Какао 🌿', 'price': 75, 'is_other': True, 'is_vegan_milk': True,
          'is_cold': True},
-
 
         {'name': 'Колд Брю', 'price': 60, 'is_coffee': True, 'is_cold': True,
          'is_black_coffee': True},
@@ -106,8 +104,6 @@ def upgrade() -> None:
          'is_cold': True},
         {'name': 'Еспресо Тонік', 'price': 60, 'is_coffee': True, "is_black_coffee": True,
          'is_cold': True},
-
-
 
         {'name': 'Габа Улун', 'price': 50, 'is_tea': True},
         {'name': 'Гречаний', 'price': 50, 'is_tea': True},
@@ -122,27 +118,29 @@ def upgrade() -> None:
         {'name': 'Шу Пуер', 'price': 70, 'is_tea': True},
         {'name': 'Шень Пуер', 'price': 70, 'is_tea': True},
 
-
-
-
-
         {'name': 'Маття Шот', 'price': 60, "is_matcha": True},
         {'name': 'Маття Оранж', 'price': 80, "is_matcha": True, "is_fresh": True},
-        {'name': 'Маття Оранж [Cold]', 'price': 80, "is_matcha": True, "is_fresh": True, "is_cold": True},
+        {'name': 'Айс Маття Оранж', 'price': 80, "is_matcha": True, "is_fresh": True, "is_cold": True},
         {'name': 'Маття Тонік', 'price': 75, "is_matcha": True, "is_cold": True},
         {'name': 'Маття Лате', 'price': 60, "is_matcha": True, "is_milk": True},
-        {'name': 'Маття Лате [Cold]', 'price': 60, "is_matcha": True, 'is_cold': True, "is_milk": True},
+        {'name': 'Айс Маття Лате', 'price': 60, "is_matcha": True, 'is_cold': True, "is_milk": True},
         {'name': 'Айс Беррі Маття Лате', 'price': 70, "is_matcha": True, 'is_cold': True, "is_milk": True},
         {'name': 'Айс Беррі Маття 🐮🚫', 'price': 80, "is_matcha": True, 'is_cold': True,
          'is_lact_free_milk': True},
         {'name': 'Айс Беррі Маття 🌿', 'price': 90, "is_matcha": True, 'is_cold': True,
          'is_vegan_milk': True},
-        {'name': 'Маття Лате 🐮🚫', 'price': 70, "is_matcha": True,'is_lact_free_milk': True},
-        {'name': 'Маття Лате 🐮🚫 [Cold]', 'price': 70, "is_matcha": True, 'is_cold': True,
+        {'name': 'Маття Лате 🐮🚫', 'price': 70, "is_matcha": True, 'is_lact_free_milk': True},
+        {'name': 'Айс Маття Лате 🐮🚫', 'price': 70, "is_matcha": True, 'is_cold': True,
          'is_lact_free_milk': True},
         {'name': 'Маття Лате 🌿', 'price': 80, "is_matcha": True, 'is_vegan_milk': True},
-        {'name': 'Маття Лате 🌿 [Cold]', 'price': 80, "is_matcha": True, 'is_cold': True,
+        {'name': 'Айс Маття Лате 🌿', 'price': 80, "is_matcha": True, 'is_cold': True,
          'is_vegan_milk': True},
+
+        {'name': 'Ванільний Еклер', 'price': 30, 'is_deserts': True},
+        {'name': 'Шоколадний Еклер', 'price': 30, 'is_deserts': True},
+        {'name': 'Фісташка-Малина Еклер', 'price': 40, 'is_deserts': True},
+        {'name': 'Чізкейк', 'price': 75, 'is_deserts': True},
+        {'name': 'Тірамісу', 'price': 60, 'is_deserts': True},
 
     ]
     for i in menu_items:
