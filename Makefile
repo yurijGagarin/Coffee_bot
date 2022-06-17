@@ -1,5 +1,5 @@
 run:
-	python main.py
+	python experiment.py
 db-up:
 	alembic upgrade head
 db-down:

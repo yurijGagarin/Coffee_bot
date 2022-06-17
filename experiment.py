@@ -24,6 +24,21 @@ BACK_TEXT = 'Назад'
 MISUNDERSTOOD_TEXT = "Вибачте, не зрозумів вас"
 DEFAULT_TEXTS = [':)', '😊']
 NOT_NULL = "not Null"
+
+RANDOM_MENU_ITEM = {
+    "title": "Шо мені випити?",
+    "callback_data": {
+        "skip_defaults": True,
+        "is_deserts": False
+    },
+    "callback": "get_random_item",
+    "buttons": [
+        {
+            "title": ROLL_BUTTON,
+        },
+    ]
+}
+
 MENU_DEFINITION = {
     "reply": "Вітаємо в Діджиталізованому Мускаті",
     "buttons": [
@@ -339,25 +354,7 @@ MENU_DEFINITION = {
 
             ],
         },
-        {
-            "title": "Шо мені випити?",
-            "callback_data": {
-                "skip_defaults": True,
-                "is_deserts": False
-            },
-            "callback": "get_random_item",
-            "buttons": [
-                {
-                    "title": ROLL_BUTTON,
-                    "callback_data": {
-                        "skip_defaults": True,
-                        "is_deserts": False
-                    },
-                    "callback": "get_random_item",
-
-                },
-            ]
-        },
+        RANDOM_MENU_ITEM,
     ]
 }
 
@@ -446,33 +443,37 @@ async def get_active_item(update: Update, context: CallbackContext):
     for index in session_context:
         active_item = active_item['buttons'][index]
 
-    message = update.message.text
+    message_text = update.message.text
 
-    if message == HOME_BUTTON:
+    print('dice:', update.message.dice)
+    if message_text == HOME_BUTTON:
         context.user_data['session_context'] = []
         active_item = MENU_DEFINITION.copy()
         active_item['reply'] = 'Давай спробуємо знову 😁'
         return active_item
 
-    elif message == BACK_TEXT and len(session_context):
+    elif message_text == BACK_TEXT and len(session_context):
         session_context = session_context[:-1]
         context.user_data['session_context'] = session_context
         new_item = MENU_DEFINITION
         for index in session_context:
             new_item = new_item['buttons'][index]
         return new_item
-    elif (message == ROLL_BUTTON or 'dice' in message) and len(session_context) :
-        context.user_data['session_context'] = session_context
-        new_item = MENU_DEFINITION["buttons"][1]
-        return new_item
+    elif (message_text == ROLL_BUTTON or update.message.dice) and len(session_context):
+        return RANDOM_MENU_ITEM
     else:
         for i in range(len(active_item['buttons'])):
             button = active_item['buttons'][i]
-            if message == button['title']:
+            if message_text == button['title']:
                 session_context.append(i)
                 context.user_data['session_context'] = session_context
                 return button
         await context.bot.send_message(chat_id=update.effective_chat.id, text=MISUNDERSTOOD_TEXT)
+
+        if active_item == RANDOM_MENU_ITEM:
+            context.user_data['session_context'] = []
+            return MENU_DEFINITION
+
         return active_item
 
 
@@ -525,7 +526,7 @@ if __name__ == '__main__':
     application = ApplicationBuilder().token(config.TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
-    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handler))
+    application.add_handler(MessageHandler((filters.TEXT | filters.Dice.DICE) & (~filters.COMMAND), handler))
     # application.add_handler(MessageHandler(filters.ALL, handler))
 
     application.run_polling()
