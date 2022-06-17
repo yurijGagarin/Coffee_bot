@@ -461,7 +461,7 @@ async def get_active_item(update: Update, context: CallbackContext):
         for index in session_context:
             new_item = new_item['buttons'][index]
         return new_item
-    elif message == ROLL_BUTTON and len(session_context):
+    elif (message == ROLL_BUTTON or 'dice' in message) and len(session_context) :
         context.user_data['session_context'] = session_context
         new_item = MENU_DEFINITION["buttons"][1]
         return new_item
