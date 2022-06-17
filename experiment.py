@@ -2,6 +2,7 @@ import logging
 import random
 
 import prettytable as pt
+from prettytable import HEADER, ALL
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -403,7 +404,8 @@ async def query_menu_items(sql_query):
 
     result = []
     print('parsing result', result)
-    table = pt.PrettyTable(['Назва', 'Ціна'])
+    table = pt.PrettyTable(['Назва', 'Ціна'], hrules=ALL)
+    print(table)
     table.align['Назва'] = 'l'
     table.align['Ціна'] = 'r'
 
@@ -421,7 +423,7 @@ async def get_menu_items(data, args):
     sql = build_menu_item_query(data)
     print("this is query:", sql)
     result = await query_menu_items(sql)
-    args['text'] = 'Тримай Друже☺️:\n\n\n' f'```{result}```'
+    args['text'] = 'Тримай Друже☺️:\n' f'```{result}```'
     args['parse_mode'] = ParseMode.MARKDOWN_V2
 
     return args
