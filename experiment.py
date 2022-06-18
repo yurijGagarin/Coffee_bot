@@ -522,10 +522,23 @@ async def start(update: Update, context: CallbackContext):
     await reply(update, context, MENU_DEFINITION)
 
 
+async def help_command(update: Update, context: CallbackContext):
+
+    context.user_data['session_context'] = context.user_data.get('session_context')
+
+    await update.message.reply_text(
+        '''Вітаємо, це словничок скорочень Мускат Бота.
+[Б/Л] --> Замість звичайного молока використовується безлактозне.
+[Р] --> Замість звичайного молока використовується рослинне.
+        ''')
+
+
+
 if __name__ == '__main__':
     application = ApplicationBuilder().token(config.TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('help', help_command))
     application.add_handler(MessageHandler((filters.TEXT | filters.Dice.DICE) & (~filters.COMMAND), handler))
     # application.add_handler(MessageHandler(filters.ALL, handler))
 
