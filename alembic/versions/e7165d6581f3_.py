@@ -139,7 +139,7 @@ def upgrade() -> None:
         {'name': 'Ванільний Еклер', 'price': 30, 'is_deserts': True},
         {'name': 'Шоколадний Еклер', 'price': 30, 'is_deserts': True},
         {'name': 'Фісташка-Малина Еклер', 'price': 40, 'is_deserts': True},
-        {'name': 'Чізкейк', 'price': 75, 'is_deserts': True},
+        {'name': 'Чізкейк', 'price': 65, 'is_deserts': True},
         {'name': 'Тірамісу', 'price': 60, 'is_deserts': True},
 
     ]
