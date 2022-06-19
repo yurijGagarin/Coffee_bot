@@ -191,7 +191,7 @@ MENU_DEFINITION = {
                             ]
                         },
                         {
-                            "title": "Матчя",
+                            "title": "Матча",
                             "reply": "Оберіть",
                             "buttons": [
                                 {
