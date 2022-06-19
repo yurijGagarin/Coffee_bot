@@ -22,7 +22,7 @@ ROLL_BUTTON = '🎲'
 HOME_BUTTON = '🏠'
 BACK_TEXT = 'Назад'
 MISUNDERSTOOD_TEXT = "Вибачте, не зрозумів вас"
-DEFAULT_TEXTS = [':)', '😊']
+DEFAULT_TEXTS = ['🙂', '😊', '🙃']
 NOT_NULL = "not Null"
 HELP_TEXT = '''Вітаємо, це словничок скорочень Мускат Бота.
 [Б/Л] --> Замість звичайного молока використовується безлактозне.
@@ -31,7 +31,7 @@ HELP_TEXT = '''Вітаємо, це словничок скорочень Мус
         '''
 
 RANDOM_MENU_ITEM = {
-    "title": "Шо мені випити?",
+    "title": "Що мені випити?",
     "callback_data": {
         "skip_defaults": True,
         "is_deserts": False
@@ -45,7 +45,7 @@ RANDOM_MENU_ITEM = {
 }
 
 MENU_DEFINITION = {
-    "reply": "Вітаємо в Діджиталізованому Мускаті",
+    "reply": "👋 Вітаємо в діджиталізованому Мускаті 🙂",
     "buttons": [
         {
             "title": "Меню",
@@ -360,7 +360,7 @@ MENU_DEFINITION = {
             ],
         },
         RANDOM_MENU_ITEM,
-    ]
+    ],
 }
 
 
@@ -403,21 +403,23 @@ async def query_menu_items(sql_query):
     async_session = sessionmaker(
         engine, expire_on_commit=False, class_=AsyncSession
     )
+    async with async_session() as session:
+        r = await session.execute(sql_query)
+        results_as_dict = r.mappings().all()
 
-    result = []
-    print('parsing result', result)
+    return results_as_dict
+
+
+def format_table(results_as_dict):
     table = pt.PrettyTable(['Назва', 'Ціна'], hrules=ALL)
     print(table)
     table.align['Назва'] = 'l'
     table.align['Ціна'] = 'r'
 
-    async with async_session() as session:
-        r = await session.execute(sql_query)
-        results_as_dict = r.mappings().all()
-        for el in results_as_dict:
-            name = el["name"]
-            price = el["price"]
-            table.add_row([name, price])
+    for el in results_as_dict:
+        name = el["name"]
+        price = el["price"]
+        table.add_row([name, price])
     return table
 
 
@@ -425,6 +427,7 @@ async def get_menu_items(data, args):
     sql = build_menu_item_query(data)
     print("this is query:", sql)
     result = await query_menu_items(sql)
+    result = format_table(result)
     args['text'] = 'Тримай Друже☺️:\n' f'```{result}```'
     args['parse_mode'] = ParseMode.MARKDOWN_V2
 
@@ -435,8 +438,10 @@ async def get_random_item(data, args):
     sql = build_menu_item_query(data) + ' ORDER BY RANDOM() LIMIT 1'
     print("this is query:", sql)
     result = await query_menu_items(sql)
-    args['text'] = 'Тримай Друже☺️:\n\n\n' f'```{result}```'
-    args['parse_mode'] = ParseMode.MARKDOWN_V2
+    item = result[0]
+
+    args['text'] = f'Друже, спробуй \n<b>{item["name"]}</b> ({item["price"]} грн)'
+    args['parse_mode'] = ParseMode.HTML
 
     return args
 
