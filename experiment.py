@@ -21,13 +21,14 @@ engine = create_async_engine(config.DB_URI)
 ROLL_BUTTON = '🎲'
 HOME_BUTTON = '🏠'
 BACK_TEXT = 'Назад'
+CHOOSE_BUTTONS = ['Оберіть:', '⬇️', '⤵️', '➡️', '🔽']
 MISUNDERSTOOD_TEXT = "Вибачте, не зрозумів вас"
 DEFAULT_TEXTS = ['🙂', '😊', '🙃']
 NOT_NULL = "not Null"
 HELP_TEXT = '''Вітаємо, це словничок скорочень Мускат Бота.
-[Б/Л] --> Замість звичайного молока використовується безлактозне.
-[Р] --> Замість звичайного молока використовується рослинне.
-Іммерсія --> Спосіб заварювання, шляхом постійного контакту води з тим, що ти заварюеєшь.
+<b>[Б/Л]</b> --> Замість звичайного молока використовується безлактозне.
+<b>[Р]</b> --> Замість звичайного молока використовується рослинне.
+<b>Іммерсія</b> --> Спосіб заварювання, шляхом постійного контакту води з тим, що ти заварюеєшь.
         '''
 
 RANDOM_MENU_ITEM = {
@@ -53,19 +54,19 @@ MENU_DEFINITION = {
             "buttons": [
                 {
                     "title": "Напої",
-                    "reply": "Оберіть",
+                    "reply": random.choice(CHOOSE_BUTTONS),
                     "buttons": [
                         {
                             "title": "Кава",
-                            "reply": "Оберіть",
+                            "reply": random.choice(CHOOSE_BUTTONS),
                             "buttons": [
                                 {
                                     "title": "Холодна",
-                                    "reply": "Оберіть",
+                                    "reply": random.choice(CHOOSE_BUTTONS),
                                     "buttons": [
                                         {
                                             "title": "Без молока",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "callback_data": {
                                                 "is_coffee": True,
                                                 "is_black_coffee": True,
@@ -76,11 +77,11 @@ MENU_DEFINITION = {
                                         },
                                         {
                                             "title": "З молоком",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "buttons": [
                                                 {
                                                     "title": "Звичайне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_coffee": True,
                                                         "is_milk": True,
@@ -91,7 +92,7 @@ MENU_DEFINITION = {
                                                 },
                                                 {
                                                     "title": "Безлактозне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_coffee": True,
                                                         "is_lact_free_milk": True,
@@ -102,7 +103,7 @@ MENU_DEFINITION = {
                                                 },
                                                 {
                                                     "title": "Рослинне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_coffee": True,
                                                         "is_vegan_milk": True,
@@ -115,7 +116,7 @@ MENU_DEFINITION = {
                                         },
                                         {
                                             "title": "На фреші",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "callback_data": {
                                                 "is_coffee": True,
                                                 "is_fresh": True,
@@ -128,11 +129,11 @@ MENU_DEFINITION = {
                                 },
                                 {
                                     "title": "Гаряча",
-                                    "reply": "Оберіть",
+                                    "reply": random.choice(CHOOSE_BUTTONS),
                                     "buttons": [
                                         {
                                             "title": "Чорна кава",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "callback_data": {
                                                 "is_coffee": True,
                                                 "is_black_coffee": True,
@@ -142,11 +143,11 @@ MENU_DEFINITION = {
                                         },
                                         {
                                             "title": "З молоком",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "buttons": [
                                                 {
                                                     "title": "Звичайне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_coffee": True,
                                                         "is_milk": True,
@@ -156,7 +157,7 @@ MENU_DEFINITION = {
                                                 },
                                                 {
                                                     "title": "Безлактозне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_coffee": True,
                                                         "is_lact_free_milk": True,
@@ -166,7 +167,7 @@ MENU_DEFINITION = {
                                                 },
                                                 {
                                                     "title": "Рослинне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_coffee": True,
                                                         "is_vegan_milk": True,
@@ -178,7 +179,7 @@ MENU_DEFINITION = {
                                         },
                                         {
                                             "title": "На фреші",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "callback_data": {
                                                 "is_coffee": True,
                                                 "is_fresh": True,
@@ -192,15 +193,15 @@ MENU_DEFINITION = {
                         },
                         {
                             "title": "Матча",
-                            "reply": "Оберіть",
+                            "reply": random.choice(CHOOSE_BUTTONS),
                             "buttons": [
                                 {
                                     "title": "Холодна",
-                                    "reply": "Оберіть",
+                                    "reply": random.choice(CHOOSE_BUTTONS),
                                     "buttons": [
                                         {
                                             "title": "Без молока",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "callback_data": {
                                                 "is_matcha": True,
                                                 "is_cold": True,
@@ -209,11 +210,11 @@ MENU_DEFINITION = {
                                         },
                                         {
                                             "title": "З молоком",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "buttons": [
                                                 {
                                                     "title": "Звичайне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_matcha": True,
                                                         "is_milk": True,
@@ -224,7 +225,7 @@ MENU_DEFINITION = {
                                                 },
                                                 {
                                                     "title": "Безлактозне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_matcha": True,
                                                         "is_lact_free_milk": True,
@@ -235,7 +236,7 @@ MENU_DEFINITION = {
                                                 },
                                                 {
                                                     "title": "Рослинне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_matcha": True,
                                                         "is_vegan_milk": True,
@@ -248,7 +249,7 @@ MENU_DEFINITION = {
                                         },
                                         {
                                             "title": "На фреші",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "callback_data": {
                                                 "is_matcha": True,
                                                 "is_fresh": True,
@@ -261,11 +262,11 @@ MENU_DEFINITION = {
                                 },
                                 {
                                     "title": "Гаряча",
-                                    "reply": "Оберіть",
+                                    "reply": random.choice(CHOOSE_BUTTONS),
                                     "buttons": [
                                         {
                                             "title": "Без молока",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "callback_data": {
                                                 "is_matcha": True,
 
@@ -274,11 +275,11 @@ MENU_DEFINITION = {
                                         },
                                         {
                                             "title": "З молоком",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "buttons": [
                                                 {
                                                     "title": "Звичайне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_matcha": True,
                                                         "is_milk": True,
@@ -288,7 +289,7 @@ MENU_DEFINITION = {
                                                 },
                                                 {
                                                     "title": "Безлактозне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_matcha": True,
                                                         "is_lact_free_milk": True,
@@ -298,7 +299,7 @@ MENU_DEFINITION = {
                                                 },
                                                 {
                                                     "title": "Рослинне",
-                                                    "reply": "Оберіть",
+                                                    "reply": random.choice(CHOOSE_BUTTONS),
                                                     "callback_data": {
                                                         "is_matcha": True,
                                                         "is_vegan_milk": True,
@@ -310,7 +311,7 @@ MENU_DEFINITION = {
                                         },
                                         {
                                             "title": "На фреші",
-                                            "reply": "Оберіть",
+                                            "reply": random.choice(CHOOSE_BUTTONS),
                                             "callback_data": {
                                                 "is_matcha": True,
                                                 "is_fresh": True,
@@ -324,7 +325,7 @@ MENU_DEFINITION = {
                         },
                         {
                             "title": "Чай",
-                            "reply": "Оберіть",
+                            "reply": random.choice(CHOOSE_BUTTONS),
                             "callback_data": {
                                 "is_tea": True,
 
@@ -333,7 +334,7 @@ MENU_DEFINITION = {
                         },
                         {
                             "title": "Інше",
-                            "reply": "Оберіть",
+                            "reply": random.choice(CHOOSE_BUTTONS),
                             "callback_data": {
                                 "is_other": True,
                                 "skip_defaults": True
@@ -440,7 +441,8 @@ async def get_random_item(data, args):
     result = await query_menu_items(sql)
     item = result[0]
 
-    args['text'] = f'Друже, спробуй \n<b>{item["name"]}</b> ({item["price"]} грн)'
+    args['text'] = f'Друже, спробуй \n<b>{item["name"]}</b> ({item["price"]} грн)\n' \
+                   f'{item["description"]} \n<b>{item["volume"]}</b> '
     args['parse_mode'] = ParseMode.HTML
 
     return args
@@ -536,7 +538,7 @@ async def help_command(update: Update, context: CallbackContext):
 
     context.user_data['session_context'] = context.user_data.get('session_context')
 
-    await update.message.reply_text(HELP_TEXT)
+    await update.message.reply_text(HELP_TEXT, parse_mode=ParseMode.HTML)
 
 
 
