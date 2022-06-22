@@ -198,128 +198,23 @@ MENU_DEFINITION = {
                                 {
                                     "title": "Холодна",
                                     "reply": random.choice(CHOOSE_BUTTONS),
-                                    "buttons": [
-                                        {
-                                            "title": "Без молока",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "callback_data": {
-                                                "is_matcha": True,
-                                                "is_cold": True,
-                                            },
-                                            "callback": "get_menu_items",
-                                        },
-                                        {
-                                            "title": "З молоком",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "buttons": [
-                                                {
-                                                    "title": "Звичайне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "callback_data": {
-                                                        "is_matcha": True,
-                                                        "is_milk": True,
-                                                        "is_cold": True
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                                {
-                                                    "title": "Безлактозне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "callback_data": {
-                                                        "is_matcha": True,
-                                                        "is_lact_free_milk": True,
-                                                        "is_cold": True
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                                {
-                                                    "title": "Рослинне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "callback_data": {
-                                                        "is_matcha": True,
-                                                        "is_vegan_milk": True,
-                                                        "is_cold": True
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                            ]
-                                        },
-                                        {
-                                            "title": "На фреші",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "callback_data": {
-                                                "is_matcha": True,
-                                                "is_fresh": True,
-                                                "is_cold": True
-                                            },
-                                            "callback": "get_menu_items",
-
-                                        },
-                                    ]
+                                    "callback_data": {
+                                        "is_matcha": True,
+                                        "is_cold": True,
+                                        "skip_defaults": True
+                                    },
+                                    "callback": "get_menu_items",
                                 },
+
                                 {
                                     "title": "Гаряча",
                                     "reply": random.choice(CHOOSE_BUTTONS),
-                                    "buttons": [
-                                        {
-                                            "title": "Без молока",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "callback_data": {
-                                                "is_matcha": True,
-
-                                            },
-                                            "callback": "get_menu_items",
-                                        },
-                                        {
-                                            "title": "З молоком",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "buttons": [
-                                                {
-                                                    "title": "Звичайне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "callback_data": {
-                                                        "is_matcha": True,
-                                                        "is_milk": True,
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                                {
-                                                    "title": "Безлактозне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "callback_data": {
-                                                        "is_matcha": True,
-                                                        "is_lact_free_milk": True,
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                                {
-                                                    "title": "Рослинне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "callback_data": {
-                                                        "is_matcha": True,
-                                                        "is_vegan_milk": True,
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                            ]
-                                        },
-                                        {
-                                            "title": "На фреші",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "callback_data": {
-                                                "is_matcha": True,
-                                                "is_fresh": True,
-                                            },
-                                            "callback": "get_menu_items",
-
-                                        },
-                                    ]
+                                    "callback_data": {
+                                        "is_matcha": True,
+                                        "is_cold": False,
+                                        "skip_defaults": True
+                                    },
+                                    "callback": "get_menu_items",
                                 },
                             ]
                         },
@@ -363,7 +258,6 @@ MENU_DEFINITION = {
         RANDOM_MENU_ITEM,
     ],
 }
-
 
 def build_menu_item_query(options):
     options = options.copy()
@@ -535,11 +429,9 @@ async def start(update: Update, context: CallbackContext):
 
 
 async def help_command(update: Update, context: CallbackContext):
-
     context.user_data['session_context'] = context.user_data.get('session_context')
 
     await update.message.reply_text(HELP_TEXT, parse_mode=ParseMode.HTML)
-
 
 
 if __name__ == '__main__':
