@@ -20,6 +20,7 @@ logging.basicConfig(
 engine = create_async_engine(config.DB_URI)
 ROLL_BUTTON = '🎲'
 HOME_BUTTON = '🏠'
+HELP_BUTTON = 'Не зрозуміло 😔'
 BACK_TEXT = 'Назад'
 CHOOSE_BUTTONS = ['Оберіть:', '⬇️', '⤵️', '➡️', '🔽']
 MISUNDERSTOOD_TEXT = "Вибачте, не зрозумів вас"
@@ -351,7 +352,6 @@ async def get_active_item(update: Update, context: CallbackContext):
 
     message_text = update.message.text
 
-    print('dice:', update.message.dice)
     if message_text == HOME_BUTTON:
         context.user_data['session_context'] = []
         active_item = MENU_DEFINITION.copy()
@@ -367,6 +367,8 @@ async def get_active_item(update: Update, context: CallbackContext):
         return new_item
     elif (message_text == ROLL_BUTTON or update.message.dice) and len(session_context):
         return RANDOM_MENU_ITEM
+    elif message_text == HELP_BUTTON:
+        return await help_command(update, context)
     else:
         for i in range(len(active_item['buttons'])):
             button = active_item['buttons'][i]
@@ -389,6 +391,10 @@ async def reply(update: Update, context: CallbackContext, active_item):
     buttons = []
     if 'buttons' in active_item:
         buttons = [[KeyboardButton(item['title'])] for item in active_item['buttons']]
+
+    if 'callback' in active_item:
+
+        buttons.append([KeyboardButton(HELP_BUTTON)])
 
     if len(session_context) > 0:
         additional_buttons = [KeyboardButton(BACK_TEXT)]
@@ -415,9 +421,8 @@ async def reply(update: Update, context: CallbackContext, active_item):
 async def handler(update: Update, context: CallbackContext):
     active_item = await get_active_item(update=update, context=context)
 
-    print(active_item.get('reply'))
-
-    return await reply(update=update, context=context, active_item=active_item)
+    if active_item:
+        await reply(update=update, context=context, active_item=active_item)
 
 
 async def start(update: Update, context: CallbackContext):
@@ -440,6 +445,5 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('help', help_command))
     application.add_handler(MessageHandler((filters.TEXT | filters.Dice.DICE) & (~filters.COMMAND), handler))
-    # application.add_handler(MessageHandler(filters.ALL, handler))
 
     application.run_polling()
