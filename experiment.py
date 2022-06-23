@@ -333,6 +333,8 @@ async def get_menu_items(data, args):
 async def get_random_item(data, args):
     sql = build_menu_item_query(data) + ' ORDER BY RANDOM() LIMIT 1'
     print("this is query:", sql)
+    print("this is data:", data)
+    print("this is args:", args)
     result = await query_menu_items(sql)
     item = result[0]
 
@@ -387,6 +389,7 @@ async def get_active_item(update: Update, context: CallbackContext):
 
 async def reply(update: Update, context: CallbackContext, active_item):
     session_context = context.user_data.get('session_context') or []
+    print("This is some kind of shit:", update.message)
 
     buttons = []
     if 'buttons' in active_item:
@@ -439,10 +442,17 @@ async def help_command(update: Update, context: CallbackContext):
     await update.message.reply_text(HELP_TEXT, parse_mode=ParseMode.HTML)
 
 
+async def random_command(update: Update, context: CallbackContext):
+    context.user_data['session_context'] = context.user_data.get('session_context')
+
+    await reply(update, context, active_item=RANDOM_MENU_ITEM)
+
+
 if __name__ == '__main__':
     application = ApplicationBuilder().token(config.TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('random', random_command))
     application.add_handler(CommandHandler('help', help_command))
     application.add_handler(MessageHandler((filters.TEXT | filters.Dice.DICE) & (~filters.COMMAND), handler))
 
