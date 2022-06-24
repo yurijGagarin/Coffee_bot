@@ -8,3 +8,4 @@ TOKEN = os.environ['TOKEN']
 DB_URI = os.environ['DB_URI']
 DEBUG = os.environ.get('DEBUG') == 'TRUE'
 
+print('TOKEN:', TOKEN)

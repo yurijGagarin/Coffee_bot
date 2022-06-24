@@ -19,7 +19,7 @@ def upgrade() -> None:
     table = op.create_table(
         'menu_item',
         sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('name', sa.String(50), nullable=False),
+        sa.Column('name', sa.String, nullable=False),
         sa.Column('price', sa.DECIMAL, nullable=False),
         sa.Column('is_coffee', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_milk', sa.Boolean, nullable=False, server_default='0'),
@@ -33,7 +33,7 @@ def upgrade() -> None:
         sa.Column('is_other', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_deserts', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('description', sa.Text, nullable=False, server_default=' '),
-        sa.Column('volume', sa.String(50), nullable=False, server_default=' '),
+        sa.Column('volume', sa.String, nullable=False, server_default=' '),
 
     )
 

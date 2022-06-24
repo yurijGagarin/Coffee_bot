@@ -1,5 +1,7 @@
 run:
-	python experiment.py
+	python bot/main.py
+db-autogenerate:
+	alembic revision --autogenerate
 db-up:
 	alembic upgrade head
 db-down:
