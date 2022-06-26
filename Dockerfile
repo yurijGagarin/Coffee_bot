@@ -7,6 +7,7 @@ COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
 COPY alembic /app/alembic/
-COPY alembic.ini config.py experiment.py /app/
+COPY bot /app/bot/
+COPY alembic.ini /app/
 
-CMD alembic upgrade head && python experiment.py
+CMD alembic upgrade head && python bot/main.py

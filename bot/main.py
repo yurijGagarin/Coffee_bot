@@ -1,5 +1,7 @@
+import asyncio
 import logging
 import random
+from sqlalchemy.future import select
 
 import prettytable as pt
 from prettytable import HEADER, ALL
@@ -11,6 +13,7 @@ from telegram.constants import ParseMode
 from telegram.ext import *
 
 import config
+from models import Base, User as UserModel
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -18,6 +21,10 @@ logging.basicConfig(
 )
 
 engine = create_async_engine(config.DB_URI)
+async_session = sessionmaker(
+    engine, expire_on_commit=False, class_=AsyncSession
+)
+
 ROLL_BUTTON = '🎲'
 HOME_BUTTON = '🏠'
 HELP_BUTTON = 'Не зрозуміло 😔'
@@ -260,6 +267,7 @@ MENU_DEFINITION = {
     ],
 }
 
+
 def build_menu_item_query(options):
     options = options.copy()
     sql = 'SELECT * FROM menu_item where '
@@ -296,9 +304,6 @@ def build_menu_item_query(options):
 
 
 async def query_menu_items(sql_query):
-    async_session = sessionmaker(
-        engine, expire_on_commit=False, class_=AsyncSession
-    )
     async with async_session() as session:
         r = await session.execute(sql_query)
         results_as_dict = r.mappings().all()
@@ -396,7 +401,6 @@ async def reply(update: Update, context: CallbackContext, active_item):
         buttons = [[KeyboardButton(item['title'])] for item in active_item['buttons']]
 
     if 'callback' in active_item:
-
         buttons.append([KeyboardButton(HELP_BUTTON)])
 
     if len(session_context) > 0:
@@ -422,6 +426,17 @@ async def reply(update: Update, context: CallbackContext, active_item):
 
 
 async def handler(update: Update, context: CallbackContext):
+    print('user_id:', update.effective_user.id)
+
+    async with async_session() as session:
+        user = await session.get(UserModel, update.effective_user.id)
+        if not user:
+            user = UserModel(
+                id=update.effective_user.id
+            )
+            session.add(user)
+            await session.commit()
+
     active_item = await get_active_item(update=update, context=context)
 
     if active_item:
@@ -448,7 +463,7 @@ async def random_command(update: Update, context: CallbackContext):
     await reply(update, context, active_item=RANDOM_MENU_ITEM)
 
 
-if __name__ == '__main__':
+def main():
     application = ApplicationBuilder().token(config.TOKEN).build()
 
     application.add_handler(CommandHandler('start', start))
@@ -457,3 +472,7 @@ if __name__ == '__main__':
     application.add_handler(MessageHandler((filters.TEXT | filters.Dice.DICE) & (~filters.COMMAND), handler))
 
     application.run_polling()
+
+
+if __name__ == '__main__':
+    main()
