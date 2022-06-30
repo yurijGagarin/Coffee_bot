@@ -2,8 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from bot import config
-from bot.models import User
+import config
+from models import User
 
 engine = create_async_engine(config.DB_URI)
 async_session = sessionmaker(

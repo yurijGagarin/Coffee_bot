@@ -9,12 +9,11 @@ from telegram.constants import ParseMode
 from telegram.ext import *
 
 import config
+from db import query_menu_items, get_user, verify_user, \
+    samos_order, get_user_by_id, get_verified_user
+from models import User as UserModel
 from navigation import get_menu_definition, \
     HOME_BUTTON, BACK_TEXT, ROLL_BUTTON, RANDOM_MENU_ITEM, HELP_BUTTON, MISUNDERSTOOD_TEXT, DEFAULT_TEXTS, HELP_TEXT
-from models import User as UserModel
-
-from db import getting_users_from_session, query_menu_items, get_user, verify_user, \
-    samos_order, get_user_by_id, get_verified_user
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
