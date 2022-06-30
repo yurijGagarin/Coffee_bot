@@ -8,7 +8,7 @@ from telegram import *
 from telegram.constants import ParseMode, ChatAction
 from telegram.ext import *
 from functools import wraps
-import config
+from bot import config
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
