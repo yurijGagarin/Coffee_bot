@@ -276,7 +276,7 @@ async def random_command(update: Update, context: CallbackContext):
     await reply(update, context, active_item=RANDOM_MENU_ITEM)
 
 
-async def keyboard_callback(update, context, args):
+async def keyboard_callback(update, context):
     query = update.callback_query
     print('query:', query)
 
@@ -295,7 +295,7 @@ async def keyboard_callback(update, context, args):
                 user_id = update.effective_user.id
                 math = payload.get('math')
                 await samos_order(type_of_samos, user_id, math)
-                await quantity_add(args=args, update=update, context=context)
+                # await quantity_add(args=args, update=update, context=context)
 
 
 def main():
