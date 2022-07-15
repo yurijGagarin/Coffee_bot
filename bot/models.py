@@ -1,6 +1,5 @@
-
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column, Integer, String, DECIMAL, Boolean, Text, Date
+from sqlalchemy import Column, Integer, String, DECIMAL, Boolean, Text, Date, func, ForeignKey
 
 Base = declarative_base()
 
@@ -13,14 +12,11 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     is_verified = Column(Boolean, default=False)
     nickname = Column(String)
-    max_to_book = Column(Integer, default=8)
-    sweet = Column(Integer, default=0)
-    salty = Column(Integer, default=0)
-    order_date = Column(Date)
+    max_to_order = Column(Integer, default=8)
 
     def __repr__(self):
-        return "<User(id='%s' name='%s', nickname='%s', sweet='%s', salty='%s', max_to_book='%s')>" \
-               % (self.id, self.name, self.nickname, self.sweet, self.salty, self.max_to_book)
+        return "<User(id='%s' name='%s', nickname='%s', max_to_order='%s')>" \
+               % (self.id, self.name, self.nickname, self.max_to_order)
 
 
 class MenuItem(Base):
@@ -35,10 +31,25 @@ class MenuItem(Base):
     is_vegan_milk = Column(Boolean, nullable=False)
     is_tea = Column(Boolean, nullable=False)
     is_matcha = Column(Boolean, nullable=False)
-    is_cold = Column(Boolean, nullable=False)
+    is_season = Column(Boolean, nullable=False)
+    available = Column(Boolean, nullable=False)
     is_black_coffee = Column(Boolean, nullable=False)
     is_fresh = Column(Boolean, nullable=False)
     is_other = Column(Boolean, nullable=False)
     is_deserts = Column(Boolean, nullable=False)
     description = Column(Text, nullable=False)
     volume = Column(String, nullable=False)
+
+
+class Booking(Base):
+    __tablename__ = 'booking'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(ForeignKey(User.id))
+    order_date = Column(Date)
+    product_type = Column(Text)
+    qty = Column(Integer, nullable=False, default=0)
+
+    def __repr__(self):
+        return "<Booking(id='%s' user_id='%s', order_date='%s', product_type='%s', qty='%s')>" \
+               % (self.id, self.user_id, self.order_date, self.product_type, self.qty)

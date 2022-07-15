@@ -7,14 +7,14 @@ from prettytable import ALL
 from telegram import *
 from telegram.constants import ParseMode
 from telegram.ext import *
+from constants import PRODUCTS
 
 import config
+from db import query_menu_items, get_user, verify_user, get_user_by_id, get_verified_user, \
+    update_booking_qty, get_booking_for_user
+from models import User as UserModel, Booking
 from navigation import get_menu_definition, \
     HOME_BUTTON, BACK_TEXT, ROLL_BUTTON, RANDOM_MENU_ITEM, HELP_BUTTON, MISUNDERSTOOD_TEXT, DEFAULT_TEXTS, HELP_TEXT
-from models import User as UserModel
-
-from db import getting_users_from_session, query_menu_items, get_user, verify_user, \
-    samos_order, get_user_by_id, get_verified_user
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -41,9 +41,10 @@ def build_menu_item_query(options):
         "is_vegan_milk": False,
         "is_tea": False,
         "is_matcha": False,
-        "is_cold": False,
+        "is_season": False,
         "is_black_coffee": False,
         "is_fresh": False,
+        "available": True
     }
     for k, v in (defaults | options).items():
         if v is None:
@@ -101,10 +102,8 @@ async def get_active_item(update: Update, context: CallbackContext, user: UserMo
     menu_definition = await get_menu_definition(user)
     active_item = menu_definition
     for index in session_context:
-        print("index", index)
         print("active_item", active_item)
         active_item = active_item['children'][index]
-        print("active_item2", active_item)
 
     message_text = update.message.text
 
@@ -160,48 +159,72 @@ async def unverified_users(args, update: Update, context: CallbackContext):
     return args
 
 
-async def quantity_add(args, update: Update, context: CallbackContext):
-    await booking_info(args, update, context)
-    keyboard = [[InlineKeyboardButton(
-        f'-1', callback_data=json.dumps({'method': "order",
-                                         'math': "decrease",
-                                         'samos': "sweet"})),
-        InlineKeyboardButton(
-            f'+1', callback_data=json.dumps({'method': "order",
-                                             'math': "increase",
-                                             'samos': "sweet"}))
-    ]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='СОЛОДКІ:',
-        reply_markup=reply_markup
-    )
-
-    second_keyboard = [[InlineKeyboardButton(
-        f'-1', callback_data=json.dumps({'method': "order",
-                                         'math': "decrease",
-                                         'samos': "salty"})),
-        InlineKeyboardButton(
-            f'+1', callback_data=json.dumps({'method': "order",
-                                             'math': "increase",
-                                             'samos': "salty"}))
-    ]]
-
-    reply_markup = InlineKeyboardMarkup(second_keyboard)
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='СОЛОНІ:',
-        reply_markup=reply_markup
-    )
-    return args
+def get_type_of_product():
+    types_of_products = PRODUCTS.keys()
+    return types_of_products
 
 
-async def booking_info(args, update: Update, context: CallbackContext):
-    booking = await get_user_by_id(update.effective_user.id)
+async def social_network_buttons(update: Update, context: CallbackContext):
+    keyboard = [
+        [InlineKeyboardButton("INSTAGRAM", url="https://instagram.com/muscat_coffeeshop?igshid=YmMyMTA2M2Y=")],
+        [InlineKeyboardButton("TELEGRAM", url="https://t.me/muscat_coffee_people_chat")]
+    ]
+    await context.bot.sendPhoto(update.message.chat.id, photo=open('bot/test.jpeg', "rb"),
+                                reply_markup=InlineKeyboardMarkup(keyboard))
+
+
+async def get_samos_response(user_id):
+    booking = await get_booking_for_user(user_id)
+
     print("booking", booking)
-    args['text'] = f'Солоних самосів: <b>{booking.User.salty}</b>\n' \
-                   f'Солодких самосів: <b>{booking.User.sweet}</b>'
+    text = []
+    for key, val in booking.items():
+        if val.qty > 0:
+            text.append(f'{PRODUCTS[val.product_type]["plural_name"]}: <b>{val.qty}</b>')
+        print("text", text)
+
+    if len(text):
+        text = '\n'.join(text)
+    else:
+        text = 'Забронювати самоси:'
+
+    keyboard = []
+    for key, val in PRODUCTS.items():
+        keyboard.append(
+            [InlineKeyboardButton(
+                f'+1 {val["single_name"]}', callback_data=json.dumps({
+                    'method': "order",
+                    'action': "+",
+                    'type': key,
+                }))]
+        )
+    keyboard_index = 0
+    for key, val in PRODUCTS.items():
+        if key in booking and booking[key].qty:
+            keyboard[keyboard_index].insert(0, InlineKeyboardButton(f'-1 {val["single_name"]}',
+                                                                    callback_data=json.dumps(
+                                                                        {
+                                                                            'method': "order",
+                                                                            'action': "-",
+                                                                            'type': key,
+                                                                        }))
+                                            )
+        keyboard_index += 1
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    return {
+        'reply_markup': reply_markup,
+        'text': text,
+    }
+
+
+async def order_samos(args, update: Update, context: CallbackContext):
+    r = await get_samos_response(update.effective_user.id)
+
+    context.user_data['session_context'] = []
+    print('update:', update)
+    args['text'] = r['text']
+    args['reply_markup'] = r['reply_markup']
     args['parse_mode'] = ParseMode.HTML
 
     return args
@@ -213,16 +236,25 @@ async def reply(update: Update, context: CallbackContext, active_item):
     print('active_item', active_item)
     buttons = []
     if 'children' in active_item:
-        buttons = [[KeyboardButton(item['title'])] for item in active_item['children'].values()]
-
+        row_values = []
+        for k, val in active_item['children'].items():
+            if 'row' in val:
+                row_values.append(val['row'])
+        for i in range(max(row_values) + 1):
+            buttons.append([])
+        for item in active_item['children'].values():
+            if 'row' in item:
+                buttons[item['row']].append(KeyboardButton(item['title']))
+            else:
+                buttons.append(KeyboardButton(item['title']))
     if len(session_context) > 0:
         additional_buttons = [KeyboardButton(BACK_TEXT)]
         if len(session_context) > 1:
             additional_buttons.append(KeyboardButton(HOME_BUTTON))
+        if 'show_help' in active_item:
+            additional_buttons.append(KeyboardButton(HELP_BUTTON))
         buttons.append(additional_buttons)
 
-    if 'show_help' in active_item:
-        buttons.append([KeyboardButton(HELP_BUTTON)])
     args = {
         'chat_id': update.effective_chat.id,
         'text': active_item.get('reply') or random.choice(DEFAULT_TEXTS),
@@ -235,13 +267,13 @@ async def reply(update: Update, context: CallbackContext, active_item):
             args = await get_random_item(active_item.get("callback_data"), args)
         elif active_item["callback"] == "unverified_users":
             args = await unverified_users(args, update, context)
-        elif active_item["callback"] == "quantity":
-            args = await quantity_add(args, update, context)
-        elif active_item["callback"] == "booking_info":
-            args = await booking_info(args, update, context)
+        elif active_item["callback"] == "order_samos":
+            args = await order_samos(args, update, context)
 
     if 'reply_markup' not in args:
-        args['reply_markup'] = ReplyKeyboardMarkup(buttons)
+        args['reply_markup'] = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+
+    print('update6:', update)
 
     return await context.bot.send_message(**args)
 
@@ -262,7 +294,8 @@ async def start(update: Update, context: CallbackContext):
 
     user = await get_user(update)
     menu_definition = await get_menu_definition(user)
-
+    await social_network_buttons(update, context)
+    await verify_user(config.VERIFIED_USER)
     await reply(update, context, menu_definition)
 
 
@@ -291,11 +324,19 @@ async def keyboard_callback(update, context):
                 await verify_user(user_id)
                 await query.answer(f'Verified')
             elif method == 'order':
-                type_of_samos = payload.get('samos')
+                product_type = payload.get('type')
                 user_id = update.effective_user.id
-                math = payload.get('math')
-                await samos_order(type_of_samos, user_id, math)
-                # await quantity_add(args=args, update=update, context=context)
+                action = payload.get('action')
+                await booking(product_type, user_id, action, update)
+
+
+async def booking(product_type, user_id, action, update):
+    query = update.callback_query
+
+    await update_booking_qty(user_id, product_type, action)
+
+    r = await get_samos_response(update.effective_user.id)
+    await query.edit_message_text(text=r['text'], reply_markup=r['reply_markup'], parse_mode=ParseMode.HTML)
 
 
 def main():

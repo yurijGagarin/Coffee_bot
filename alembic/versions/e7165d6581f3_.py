@@ -27,13 +27,14 @@ def upgrade() -> None:
         sa.Column('is_vegan_milk', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_tea', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_matcha', sa.Boolean, nullable=False, server_default='0'),
-        sa.Column('is_cold', sa.Boolean, nullable=False, server_default='0'),
+        sa.Column('is_season', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_black_coffee', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_fresh', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_other', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('is_deserts', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('description', sa.Text, nullable=False, server_default=' '),
         sa.Column('volume', sa.String, nullable=False, server_default=' '),
+        sa.Column('available', sa.Boolean, nullable=False, server_default='0'),
 
     )
 
@@ -91,13 +92,13 @@ def upgrade() -> None:
              " з ідеальним балансом кави та молока.",
          'volume': '180 мл'},
         {'name': 'Капучино [Б/Л]', 'price': 50, 'is_coffee': True,
-         'is_lact_free_milk': True,
+         'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "Кавово-молочний напій на основі еспресо,"
              " з ідеальним балансом кави та молока.",
          'volume': '180 мл'},
         {'name': 'Капучино [Р]', 'price': 60, 'is_coffee': True,
-         'is_vegan_milk': True,
+         'is_vegan_milk': True, 'is_milk': True,
          'description':
              "Кавово-молочний напій на основі еспресо,"
              " з ідеальним балансом кави та молока.",
@@ -107,43 +108,43 @@ def upgrade() -> None:
              "Кавово-молочний напій на основі еспресо,"
              " з балансом зміщенним в сторону молока.",
          'volume': '300 мл'},
-        {'name': 'Айс Лате', 'price': 45, 'is_coffee': True, 'is_milk': True, 'is_cold': True,
+        {'name': 'Айс Лате', 'price': 45, 'is_coffee': True, 'is_milk': True, 'is_season': True,
          'description':
              "Класичний напій у холодному виконанні. Смак улюбленої кави у поєднанні з ніжним смаком молока.",
          'volume': '330 мл'},
-        {'name': 'Айс Беррі Лате', 'price': 55, 'is_coffee': True, 'is_milk': True, 'is_cold': True,
+        {'name': 'Айс Беррі Лате', 'price': 55, 'is_coffee': True, 'is_milk': True, 'is_season': True,
          'description':
              "Айс Лате з додаванням ягідного пюре.",
          'volume': '330 мл'},
         {'name': 'Айс Беррі Лате [Б/Л]', 'price': 65, 'is_coffee': True,
-         'is_lact_free_milk': True, 'is_cold': True,
+         'is_lact_free_milk': True, 'is_milk': True, 'is_season': True,
          'description':
              "Айс Лате з додаванням ягідного пюре.",
          'volume': '330 мл'},
         {'name': 'Айс Беррі Лате [Р]', 'price': 75, 'is_coffee': True,
-         'is_vegan_milk': True, 'is_cold': True,
+         'is_vegan_milk': True, 'is_milk': True, 'is_season': True,
          'description':
              "Айс Лате з додаванням ягідного пюре.",
          'volume': '330 мл'},
         {'name': 'Лате [Б/Л]', 'price': 55, 'is_coffee': True,
-         'is_lact_free_milk': True,
+         'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "Кавово-молочний напій на основі еспресо,"
              " з балансом зміщенним в сторону молока.",
          'volume': '300 мл'},
         {'name': 'Айс Лате [Б/Л]', 'price': 55, 'is_coffee': True,
-         'is_lact_free_milk': True, 'is_cold': True,
+         'is_lact_free_milk': True, 'is_milk': True, 'is_season': True,
          'description':
              "Класичний напій у холодному виконанні. Смак улюбленої кави у поєднанні з ніжним смаком молока.",
          'volume': '330 мл'},
         {'name': 'Лате [Р]', 'price': 65, 'is_coffee': True,
-         'is_vegan_milk': True,
+         'is_vegan_milk': True, 'is_milk': True,
          'description':
              "Кавово-молочний напій на основі еспресо,"
              " з балансом зміщенним в сторону молока.",
          'volume': '300 мл'},
         {'name': 'Айс Лате [Р]', 'price': 65, 'is_coffee': True,
-         'is_vegan_milk': True, 'is_cold': True,
+         'is_vegan_milk': True, 'is_milk': True, 'is_season': True,
          'description':
              "Класичний напій у холодному виконанні. Смак улюбленої кави у поєднанні з ніжним смаком молока.",
          'volume': '330 мл'},
@@ -153,13 +154,13 @@ def upgrade() -> None:
              " з балансом зміщенним в сторону кави.",
          'volume': '180 мл'},
         {'name': 'Флет Уайт [Б/Л]', 'price': 55, 'is_coffee': True,
-         'is_lact_free_milk': True,
+         'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "Кавово-молочний напій на основі подвійного еспресо,"
              " з балансом зміщенним в сторону кави.",
          'volume': '180 мл'},
         {'name': 'Флет Уайт [Р]', 'price': 65, 'is_coffee': True,
-         'is_vegan_milk': True,
+         'is_vegan_milk': True, 'is_milk': True,
          'description':
              "Кавово-молочний напій на основі подвійного еспресо,"
              " з балансом зміщенним в сторону кави.",
@@ -170,7 +171,7 @@ def upgrade() -> None:
              " зі збереженним балансом кави та молока та більшим об'ємом ніж класичний капучино.",
          'volume': '300 мл'},
         {'name': 'Подвійний Капучино [Б/Л]', 'price': 60, 'is_coffee': True,
-         'is_lact_free_milk': True,
+         'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "Кавово-молочний напій на основі подвійного еспресо,"
              " зі збереженним балансом кави та молока та більшим об'ємом ніж класичний капучино.",
@@ -185,29 +186,29 @@ def upgrade() -> None:
          'description':
              "Гарячий кавово-вершковий напій з нотами ванілі. Вершковий та солодкий смак.",
          'volume': '330 мл'},
-        {'name': 'Айс Раф', 'price': 65, 'is_coffee': True, 'is_milk': True, 'is_cold': True,
+        {'name': 'Айс Раф', 'price': 65, 'is_coffee': True, 'is_milk': True, 'is_season': True,
          'description':
              "Холодний кавово-вершковий напій з нотами ванілі. Вершковий та солодкий смак. "
              "Більш текстурний ніж його гаряча версія.",
          'volume': '330 мл'},
         {'name': 'Раф [Б/Л]', 'price': 75, 'is_coffee': True,
-         'is_lact_free_milk': True,
+         'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "Гарячий кавово-вершковий напій з нотами ванілі. Вершковий та солодкий смак.",
          'volume': '330 мл'},
         {'name': 'Айс Раф [Б/Л]', 'price': 75, 'is_coffee': True,
-         'is_cold': True, 'is_lact_free_milk': True,
+         'is_season': True, 'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "Холодний кавово-вершковий напій з нотами ванілі. Вершковий та солодкий смак. "
              "Більш текстурний ніж його гаряча версія.",
          'volume': '330 мл'},
         {'name': 'Раф [Р]', 'price': 85, 'is_coffee': True,
-         'is_vegan_milk': True,
+         'is_vegan_milk': True, 'is_milk': True,
          'description':
              "Гарячий кавово-вершковий напій з нотами ванілі. Вершковий та солодкий смак.",
          'volume': '330 мл'},
         {'name': 'Айс Раф [Р]', 'price': 85, 'is_coffee': True,
-         'is_cold': True, 'is_vegan_milk': True,
+         'is_season': True, 'is_vegan_milk': True, 'is_milk': True,
          'description':
              "Холодний кавово-вершковий напій з нотами ванілі. Вершковий та солодкий смак. "
              "Більш текстурний ніж його гаряча версія.",
@@ -216,7 +217,7 @@ def upgrade() -> None:
          'description':
              "Це як капучино, в якому замість молока - свіжовичавлений апельсиновий фреш.",
          'volume': '180 мл'},
-        {'name': 'Бамбл', 'price': 70, 'is_coffee': True, 'is_fresh': True, 'is_cold': True,
+        {'name': 'Бамбл', 'price': 70, 'is_coffee': True, 'is_fresh': True, 'is_season': True,
          'description':
              "Кава, апельсиновий фреш та лід. Допомагає побороти спеку",
          'volume': '330 мл'},
@@ -225,47 +226,47 @@ def upgrade() -> None:
          'description':
              "В нас є як гіркий так і солодкий.  Обирай що тобі до смаку.",
          'volume': '330 мл'},
-        {'name': 'Айс Какао', 'price': 55, 'is_other': True, 'is_milk': True, 'is_cold': True,
+        {'name': 'Айс Какао', 'price': 55, 'is_other': True, 'is_milk': True, 'is_season': True,
          'description':
              "Холодний Какао. В нас є як гіркий так і солодкий.  Обирай що тобі до смаку.",
          'volume': '330 мл'},
-        {'name': 'Какао [Б/Л]', 'price': 65, 'is_other': True, 'is_lact_free_milk': True,
+        {'name': 'Какао [Б/Л]', 'price': 65, 'is_other': True, 'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "В нас є як гіркий так і солодкий.  Обирай що тобі до смаку.",
          'volume': '330 мл'},
         {'name': 'Айс Какао [Б/Л]', 'price': 65, 'is_other': True,
-         'is_lact_free_milk': True, 'is_cold': True,
+         'is_lact_free_milk': True, 'is_milk': True, 'is_season': True,
          'description':
              "Холодний Какао. В нас є як гіркий так і солодкий.  Обирай що тобі до смаку.",
          'volume': '330 мл'},
-        {'name': 'Какао [Р]', 'price': 75, 'is_other': True, 'is_vegan_milk': True,
+        {'name': 'Какао [Р]', 'price': 75, 'is_other': True, 'is_vegan_milk': True, 'is_milk': True,
          'description':
              "В нас є як гіркий так і солодкий.  Обирай що тобі до смаку.",
          'volume': '330 мл'},
-        {'name': 'Айс Какао [Р]', 'price': 75, 'is_other': True, 'is_vegan_milk': True,
-         'is_cold': True,
+        {'name': 'Айс Какао [Р]', 'price': 75, 'is_other': True, 'is_vegan_milk': True, 'is_milk': True,
+         'is_season': True,
          'description':
              "Холодний Какао. В нас є як гіркий так і солодкий.  Обирай що тобі до смаку.",
          'volume': '330 мл'},
 
-        {'name': 'Колд Брю', 'price': 60, 'is_coffee': True, 'is_cold': True,
+        {'name': 'Колд Брю', 'price': 60, 'is_coffee': True, 'is_season': True,
          'is_black_coffee': True,
          'description':
              "Чорна кава, яка готується методом імерсії протягом 20 годин",
          'volume': '330 мл'},
-        {'name': 'Колд Брю Колада', 'price': 75, 'is_coffee': True, 'is_vegan_milk': True,
-         'is_cold': True,
+        {'name': 'Колд Брю Колада', 'price': 75, 'is_coffee': True, 'is_vegan_milk': True, 'is_milk': True,
+         'is_season': True,
          'description':
              "Якщо колд брю - то занудно для тебе, то спробуй це."
              " В основі колд брю та два вида рослинного молока",
          'volume': '330 мл'},
         {'name': 'Колд Брю Тонік', 'price': 60, 'is_coffee': True, "is_black_coffee": True,
-         'is_cold': True,
+         'is_season': True,
          'description':
              "Колд брю та тонік, класика сьогодення, що допомагає побороти спеку.",
          'volume': '330 мл'},
         {'name': 'Еспресо Тонік', 'price': 60, 'is_coffee': True, "is_black_coffee": True,
-         'is_cold': True,
+         'is_season': True,
          'description':
              "Еспресо та тонік, класика сьогодення, що допомагає побороти спеку.",
          'volume': '330 мл'},
@@ -352,12 +353,12 @@ def upgrade() -> None:
              "Гарячий напій який поєднує в собі матчу та апельсиновий фреш. "
              "Яскравий та насичений смак, а також дуже корисний.",
          'volume': '180 мл'},
-        {'name': 'Айс Матча Оранж', 'price': 80, "is_matcha": True, "is_fresh": True, "is_cold": True,
+        {'name': 'Айс Матча Оранж', 'price': 80, "is_matcha": True, "is_fresh": True, "is_season": True,
          'description':
              "Холодний напій який поєднує в собі матчу та апельсиновий фреш. "
              "Яскравий та насичений смак, а також дуже корисний.",
          'volume': '330 мл'},
-        {'name': 'Матча Тонік', 'price': 75, "is_matcha": True, "is_cold": True,
+        {'name': 'Матча Тонік', 'price': 75, "is_matcha": True, "is_season": True,
          'description':
              "Холодний напій який поєднує в собі матчу та тонік. Допомагає побороти спеку.",
          'volume': '270 мл'},
@@ -366,41 +367,41 @@ def upgrade() -> None:
              "Напій основою якого є матча,"
              " з правильним вмішуванням в нього взбитого молока",
          'volume': '260 мл'},
-        {'name': 'Айс Матча Лате', 'price': 60, "is_matcha": True, 'is_cold': True, "is_milk": True,
+        {'name': 'Айс Матча Лате', 'price': 60, "is_matcha": True, 'is_season': True, "is_milk": True,
          'description':
              "Матча, молоко та лід. Гарно смакує у спеку",
          'volume': '270 мл'},
-        {'name': 'Айс Беррі Матча Лате', 'price': 70, "is_matcha": True, 'is_cold': True, "is_milk": True,
+        {'name': 'Айс Беррі Матча Лате', 'price': 70, "is_matcha": True, 'is_season': True, "is_milk": True,
          'description':
              "Матча, молоко, лід та ягідне пюре. Гарно смакує у спеку",
          'volume': '270 мл'},
-        {'name': 'Айс Беррі Матча [Б/Л]', 'price': 80, "is_matcha": True, 'is_cold': True,
-         'is_lact_free_milk': True,
+        {'name': 'Айс Беррі Матча [Б/Л]', 'price': 80, "is_matcha": True, 'is_season': True,
+         'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "Матча, молоко, лід та ягідне пюре. Гарно смакує у спеку",
          'volume': '270 мл'},
-        {'name': 'Айс Беррі Матча [Р]', 'price': 90, "is_matcha": True, 'is_cold': True,
-         'is_vegan_milk': True,
+        {'name': 'Айс Беррі Матча [Р]', 'price': 90, "is_matcha": True, 'is_season': True,
+         'is_vegan_milk': True, 'is_milk': True,
          'description':
              "Матча, молоко, лід та ягідне пюре. Гарно смакує у спеку",
          'volume': '270 мл'},
-        {'name': 'Матча Лате [Б/Л]', 'price': 70, "is_matcha": True, 'is_lact_free_milk': True,
+        {'name': 'Матча Лате [Б/Л]', 'price': 70, "is_matcha": True, 'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "Напій основою якого є матча,"
              " з правильним вмішуванням в нього взбитого молока",
          'volume': '260 мл'},
-        {'name': 'Айс Матча Лате [Б/Л]', 'price': 70, "is_matcha": True, 'is_cold': True,
-         'is_lact_free_milk': True,
+        {'name': 'Айс Матча Лате [Б/Л]', 'price': 70, "is_matcha": True, 'is_season': True,
+         'is_lact_free_milk': True, 'is_milk': True,
          'description':
              "Матча, молоко та лід. Гарно смакує у спеку",
          'volume': '270 мл'},
-        {'name': 'Матча Лате [Р]', 'price': 80, "is_matcha": True, 'is_vegan_milk': True,
+        {'name': 'Матча Лате [Р]', 'price': 80, "is_matcha": True, 'is_vegan_milk': True, 'is_milk': True,
          'description':
              "Напій основою якого є матча,"
              " з правильним вмішуванням в нього взбитого молока",
          'volume': '260 мл'},
-        {'name': 'Айс Матча Лате [Р]', 'price': 80, "is_matcha": True, 'is_cold': True,
-         'is_vegan_milk': True,
+        {'name': 'Айс Матча Лате [Р]', 'price': 80, "is_matcha": True, 'is_season': True,
+         'is_vegan_milk': True, 'is_milk': True,
          'description':
              "Матча, молоко та лід. Гарно смакує у спеку",
          'volume': '270 мл'},
@@ -413,6 +414,8 @@ def upgrade() -> None:
 
     ]
     for i in menu_items:
+        if 'available' not in i:
+            i['available'] = True
         op.bulk_insert(table, [i])
 
 

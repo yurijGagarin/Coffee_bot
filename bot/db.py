@@ -1,9 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-
 from bot import config
-from bot.models import User
+from bot.models import User, Booking
+from bot.navigation import get_next_saturday
 
 engine = create_async_engine(config.DB_URI)
 async_session = sessionmaker(
@@ -19,6 +19,22 @@ async def getting_users_from_session(search):
         users = result.fetchall()
 
     return users
+
+
+async def get_booking_for_user(user_id):
+    next_saturday = get_next_saturday()
+    async with async_session() as session:
+        result = await session.execute(
+            select(Booking).where(Booking.user_id == user_id, Booking.order_date == next_saturday)
+        )
+        print("result", result)
+
+        booking = result.fetchall()
+        booking_result = {}
+        for row in booking:
+            booking_result[row.Booking.product_type] = row.Booking
+
+    return booking_result
 
 
 async def get_user_by_id(user_id):
@@ -51,23 +67,21 @@ async def get_user(update):
     return user
 
 
-async def samos_order(type_of_samos, user_id, math):
+async def update_booking_qty(user_id, product_type, math):
     async with async_session() as session:
-        user = await session.get(User, user_id)
-        if type_of_samos == "salty":
-            if math == "increase":
-                user.salty += 1
-                session.add(user)
-            elif math == "decrease":
-                user.salty -= 1
-                session.add(user)
-        elif type_of_samos == "sweet":
-            if math == "increase":
-                user.sweet += 1
-                session.add(user)
-            elif math == "decrease":
-                user.sweet -= 1
-                session.add(user)
+        booking = await get_booking_for_user(user_id)
+        user = await get_user_by_id(user_id)
+        diff = -1 if math == '-' else 1
+
+        print("booking", booking)
+        print("user", user)
+        if product_type in booking:
+            booking[product_type].qty = max(0, min(booking[product_type].qty + diff, user[0].max_to_order))
+        else:
+            booking[product_type] = Booking(qty=1, user_id=user_id,
+                                            order_date=get_next_saturday(),
+                                            product_type=product_type)
+        session.add(booking[product_type])
         await session.commit()
 
 

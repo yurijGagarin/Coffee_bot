@@ -1,6 +1,6 @@
 import random
 from copy import deepcopy
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,14 +25,172 @@ HELP_TEXT = '''Вітаємо, це словничок скорочень Мус
 RANDOM_MENU_ITEM = {
     "title": "Що мені випити?",
     "show_help": True,
+    "row": 1,
     "callback_data": {
         "skip_defaults": True,
-        "is_deserts": False
+        "is_deserts": False,
+        "available": True
     },
     "callback": "get_random_item",
     "children": {
         "roll": {
+            "row": 1,
             "title": ROLL_BUTTON,
+        },
+    }
+}
+DRINKS = {
+    "title": "Напої",
+    "row": 0,
+    "reply": random.choice(CHOOSE_BUTTONS),
+    "children": {
+        "black_coffee": {
+            "title": "Чорна кава",
+            "row": 0,
+
+            "reply": random.choice(CHOOSE_BUTTONS),
+            "show_help": True,
+            "callback_data": {
+                "is_coffee": True,
+                "is_black_coffee": True,
+
+            },
+            "callback": "get_menu_items",
+        },
+        "coffee_with_milk": {
+            "title": "Кава з молоком",
+            "row": 0,
+
+            "reply": random.choice(CHOOSE_BUTTONS),
+            "show_help": True,
+            "callback_data": {
+                "is_coffee": True,
+                "is_season": False,
+                "is_milk": True,
+                "skip_defaults": True,
+                "available": True
+
+            },
+            "callback": "get_menu_items",
+        },
+        "coffee_with_juice": {
+            "title": "На фреші",
+            "row": 0,
+
+            "reply": random.choice(CHOOSE_BUTTONS),
+            "show_help": True,
+            "callback_data": {
+                "is_coffee": True,
+                "is_fresh": True,
+            },
+            "callback": "get_menu_items",
+
+        },
+        "matcha": {
+            "title": "Матча",
+            "row": 2,
+
+            "reply": random.choice(CHOOSE_BUTTONS),
+            "show_help": True,
+            "callback_data": {
+                "is_matcha": True,
+                "is_season": False,
+                "skip_defaults": True,
+                "available": True
+            },
+            "callback": "get_menu_items",
+        },
+        "tea": {
+            "title": "Чай",
+            "row": 2,
+
+            "reply": random.choice(CHOOSE_BUTTONS),
+            "show_help": True,
+            "callback_data": {
+                "is_tea": True,
+
+            },
+            "callback": "get_menu_items",
+        },
+        "other": {
+            "title": "Інше",
+            "row": 2,
+
+            "reply": random.choice(CHOOSE_BUTTONS),
+            "show_help": True,
+            "callback_data": {
+                "is_other": True,
+                "skip_defaults": True,
+                "available": True
+            },
+            "callback": "get_menu_items",
+
+        },
+    }
+}
+DESERTS = {
+    "title": "Десерти",
+    "row": 1,
+
+    "reply": "Тут ви зможете ознайомитись з тим, які десерти в нас бувають. ",
+    "callback_data": {
+        "is_deserts": True,
+        "skip_defaults": True,
+        "available": True
+    },
+    "callback": "get_menu_items",
+}
+SEASON = {
+    "title": "Сезонне меню",
+    "row": 0,
+
+    "children": {
+
+        "coffee": {
+            "title": "Кава",
+            "row": 0,
+
+            "reply": random.choice(CHOOSE_BUTTONS),
+            "show_help": True,
+            "callback_data": {
+                "is_coffee": True,
+                "skip_defaults": True,
+                "is_season": True,
+                "available": True
+
+            },
+            "callback": "get_menu_items",
+
+        },
+        "matcha": {
+            "title": "Матча",
+            "row": 0,
+
+            "reply": random.choice(CHOOSE_BUTTONS),
+            "show_help": True,
+            "callback_data": {
+                "is_matcha": True,
+                "skip_defaults": True,
+                "is_season": True,
+                "available": True
+
+            },
+            "callback": "get_menu_items",
+        },
+        "other": {
+            "title": "Інше",
+            "reply": random.choice(CHOOSE_BUTTONS),
+            "show_help": True,
+            "row": 0,
+
+            "callback_data": {
+                "is_other": True,
+                "skip_defaults": True,
+                "is_season": True,
+                "available": True
+
+            },
+            "callback": "get_menu_items",
         },
     }
 }
@@ -40,241 +198,29 @@ RANDOM_MENU_ITEM = {
 MENU_DEFINITION = {
     "reply": "👋 Вітаємо в діджиталізованому Мускаті 🙂",
     "children": {
-        "menu": {
-            "title": "Меню",
-            "reply": "Оберіть розділ",
-            "children": {
-                "drinks": {
-                    "title": "Напої",
-                    "reply": random.choice(CHOOSE_BUTTONS),
-                    "children": {
-                        "coffee": {
-                            "title": "Кава",
-                            "reply": random.choice(CHOOSE_BUTTONS),
-                            "children": {
-                                "cold": {
-                                    "title": "Холодна",
-                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                    "children": {
-                                        "no_milk": {
-                                            "title": "Без молока",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "show_help": True,
-                                            "callback_data": {
-                                                "is_coffee": True,
-                                                "is_black_coffee": True,
-                                                "is_cold": True
-
-                                            },
-                                            "callback": "get_menu_items",
-                                        },
-                                        "milk": {
-                                            "title": "З молоком",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "children": {
-                                                "cow_milk": {
-                                                    "title": "Звичайне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "show_help": True,
-                                                    "callback_data": {
-                                                        "is_coffee": True,
-                                                        "is_milk": True,
-                                                        "is_cold": True
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                                "lactose_free_milk": {
-                                                    "title": "Безлактозне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "show_help": True,
-                                                    "callback_data": {
-                                                        "is_coffee": True,
-                                                        "is_lact_free_milk": True,
-                                                        "is_cold": True
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                                "vegan_milk": {
-                                                    "title": "Рослинне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "show_help": True,
-                                                    "callback_data": {
-                                                        "is_coffee": True,
-                                                        "is_vegan_milk": True,
-                                                        "is_cold": True
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                }, }
-
-                                        },
-                                        "juice": {
-                                            "title": "На фреші",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "show_help": True,
-                                            "callback_data": {
-                                                "is_coffee": True,
-                                                "is_fresh": True,
-                                                "is_cold": True
-                                            },
-                                            "callback": "get_menu_items",
-
-                                        }, }
-
-                                },
-                                "hot": {
-                                    "title": "Гаряча",
-                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                    "children": {
-                                        "no_milk": {
-                                            "title": "Чорна кава",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "show_help": True,
-                                            "callback_data": {
-                                                "is_coffee": True,
-                                                "is_black_coffee": True,
-
-                                            },
-                                            "callback": "get_menu_items",
-                                        },
-                                        "milk": {
-                                            "title": "З молоком",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "children": {
-                                                "cow_milk": {
-                                                    "title": "Звичайне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "show_help": True,
-                                                    "callback_data": {
-                                                        "is_coffee": True,
-                                                        "is_milk": True,
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                                "lactose_free_milk": {
-                                                    "title": "Безлактозне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "show_help": True,
-                                                    "callback_data": {
-                                                        "is_coffee": True,
-                                                        "is_lact_free_milk": True,
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                },
-                                                "vegan_milk": {
-                                                    "title": "Рослинне",
-                                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                                    "show_help": True,
-                                                    "callback_data": {
-                                                        "is_coffee": True,
-                                                        "is_vegan_milk": True,
-
-                                                    },
-                                                    "callback": "get_menu_items",
-                                                }, }
-                                        },
-                                        "juice": {
-                                            "title": "На фреші",
-                                            "reply": random.choice(CHOOSE_BUTTONS),
-                                            "show_help": True,
-                                            "callback_data": {
-                                                "is_coffee": True,
-                                                "is_fresh": True,
-                                            },
-                                            "callback": "get_menu_items",
-
-                                        }, }
-                                },
-                            },
-
-                        },
-                        "matcha": {
-                            "title": "Матча",
-                            "reply": random.choice(CHOOSE_BUTTONS),
-                            "children": {
-                                "cold": {
-                                    "title": "Холодна",
-                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                    "show_help": True,
-                                    "callback_data": {
-                                        "is_matcha": True,
-                                        "is_cold": True,
-                                        "skip_defaults": True
-                                    },
-                                    "callback": "get_menu_items",
-                                },
-                                "hot": {
-                                    "title": "Гаряча",
-                                    "reply": random.choice(CHOOSE_BUTTONS),
-                                    "show_help": True,
-                                    "callback_data": {
-                                        "is_matcha": True,
-                                        "is_cold": False,
-                                        "skip_defaults": True
-                                    },
-                                    "callback": "get_menu_items",
-                                },
-                            },
-                        },
-                        "tea": {
-                            "title": "Чай",
-                            "reply": random.choice(CHOOSE_BUTTONS),
-                            "show_help": True,
-                            "callback_data": {
-                                "is_tea": True,
-
-                            },
-                            "callback": "get_menu_items",
-                        },
-                        "other": {
-                            "title": "Інше",
-                            "reply": random.choice(CHOOSE_BUTTONS),
-                            "show_help": True,
-                            "callback_data": {
-                                "is_other": True,
-                                "skip_defaults": True
-                            },
-                            "callback": "get_menu_items",
-
-                        },
-                    }
-                },
-                "deserts": {
-                    "title": "Десерти",
-                    "reply": "Тут ви зможете ознайомитись з тим, які десерти в нас бувають. ",
-                    "callback_data": {
-                        "is_deserts": True,
-                        "skip_defaults": True
-                    },
-                    "callback": "get_menu_items",
-                },
-
-            },
-        },
+        "drinks": DRINKS,
+        "deserts": DESERTS,
+        "season": SEASON,
         "random": RANDOM_MENU_ITEM
-    }
+
+    },
+
 }
 
 
-def get_current_date():
+def get_next_saturday():
+    d = date.today()
+    t = timedelta((7 + 5 - d.weekday()) % 7)
+    return (d + t)  # .strftime('%Y-%m-%d')
+
+
+def samos_button_reveal():
     today = date.today()
-    samosy_day = date(2022, 6, 25)
     available_days = [0, 1, 2, 3, 6]
-    samosy_when = samosy_day - today
-    next_saturday = timedelta(7)
     can_order = False
-    unload_bd = False
-    if samosy_when < timedelta(1):
-        samosy_day += next_saturday
     if today.weekday() in available_days:
         can_order = True
-    if today.weekday == 4:
-        unload_bd = True
-    return samosy_day, can_order, unload_bd
+    return can_order
 
 
 async def get_menu_definition(user: UserModel):
@@ -288,25 +234,16 @@ async def get_menu_definition(user: UserModel):
 
         menu['children']['order_samos'] = {
             "title": "Бронювання самосів",
+            "row": 2,
             "reply": random.choice(CHOOSE_BUTTONS),
-            "children": {
-                "order": {
-                    "title": "Забронювати самоси",
-                    "reply": "Яка кількість?",
-                    "callback": 'quantity',
-                }}
+            "callback": 'order_samos',
         }
-
-        if user.salty > 0 or user.sweet > 0:
-            menu['children']['order_samos']['children']['booking_info'] = {
-                "title": "Мої заброньовані самоси",
-                "reply": "Ти забронював:",
-                "callback": 'booking_info',
-            }
 
     if user.is_admin:
         menu['children']['user_verification'] = {
             "title": "Верифікувати юзера",
+            "row": 2,
+
             "reply": " Оберіть юзернейм",
             "callback": 'unverified_users',
 
