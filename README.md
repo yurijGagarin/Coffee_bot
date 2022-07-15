@@ -6,4 +6,4 @@
 - `cp .env.example .env`
 - Edit `.env`
 - `alembic upgrade head`
-- `python main.py`
+- `python bot/main.py`

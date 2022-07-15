@@ -2,12 +2,6 @@ import random
 from copy import deepcopy
 from datetime import date, timedelta, datetime
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import sessionmaker
-
-from bot import config
 from models import User as UserModel
 
 ROLL_BUTTON = '🎲'
