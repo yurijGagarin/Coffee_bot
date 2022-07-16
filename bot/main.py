@@ -204,25 +204,25 @@ def get_type_of_product():
     return types_of_products
 
 
-async def social_network_buttons(update: Update, context: CallbackContext):
-    keyboard = [
-        [
-            InlineKeyboardButton(
-                "INSTAGRAM",
-                url="https://instagram.com/muscat_coffeeshop?igshid=YmMyMTA2M2Y=",
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                "TELEGRAM", url="https://t.me/muscat_coffee_people_chat"
-            )
-        ],
-    ]
-    await context.bot.sendPhoto(
-        update.message.chat.id,
-        photo=open("bot/static/test.jpeg", "rb"),
-        reply_markup=InlineKeyboardMarkup(keyboard),
-    )
+# async def social_network_buttons(update: Update, context: CallbackContext):
+#     keyboard = [
+#         [
+#             InlineKeyboardButton(
+#                 "INSTAGRAM",
+#                 url="https://instagram.com/muscat_coffeeshop?igshid=YmMyMTA2M2Y=",
+#             )
+#         ],
+#         [
+#             InlineKeyboardButton(
+#                 "TELEGRAM", url="https://t.me/muscat_coffee_people_chat"
+#             )
+#         ],
+#     ]
+#     await context.bot.sendPhoto(
+#         update.message.chat.id,
+#         photo=open("bot/static/test.jpeg", "rb"),
+#         reply_markup=InlineKeyboardMarkup(keyboard),
+#     )
 
 
 async def get_samos_response(user_id):
@@ -351,8 +351,7 @@ async def start(update: Update, context: CallbackContext):
 
     user = await get_user(update)
     menu_definition = await get_menu_definition(user)
-    await social_network_buttons(update, context)
-    await verify_user(config.VERIFIED_USER)
+    # await social_network_buttons(update, context)
     await reply(update, context, menu_definition)
 
 

@@ -161,7 +161,7 @@ SEASON = {
 }
 
 MENU_DEFINITION = {
-    "reply": "gif",
+    "reply": "👋 Вітаємо в діджиталізованому Мускаті 🙂",
     "children": {
         "drinks": DRINKS,
         "deserts": DESERTS,
@@ -174,7 +174,7 @@ MENU_DEFINITION = {
 def get_next_saturday():
     d = date.today()
     t = timedelta((7 + 5 - d.weekday()) % 7)
-    return d + t  # .strftime('%Y-%m-%d')
+    return d + t
 
 
 def samos_button_reveal():

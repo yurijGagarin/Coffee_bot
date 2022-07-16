@@ -11,3 +11,4 @@ venv
 
 
 .env
+/bot/static/
