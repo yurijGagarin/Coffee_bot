@@ -7,18 +7,33 @@ from prettytable import ALL
 from telegram import *
 from telegram.constants import ParseMode
 from telegram.ext import *
-from constants import PRODUCTS
 
 import config
-from db import query_menu_items, get_user, verify_user, get_user_by_id, get_verified_user, \
-    update_booking_qty, get_booking_for_user
-from models import User as UserModel, Booking
-from navigation import get_menu_definition, \
-    HOME_BUTTON, BACK_TEXT, ROLL_BUTTON, RANDOM_MENU_ITEM, HELP_BUTTON, MISUNDERSTOOD_TEXT, DEFAULT_TEXTS, HELP_TEXT
+from constants import PRODUCTS
+from db import (
+    query_menu_items,
+    get_user,
+    verify_user,
+    get_verified_user,
+    update_booking_qty,
+    get_booking_for_user,
+)
+from models import User as UserModel
+from navigation import (
+    get_menu_definition,
+    HOME_BUTTON,
+    BACK_TEXT,
+    ROLL_BUTTON,
+    RANDOM_MENU_ITEM,
+    HELP_BUTTON,
+    MISUNDERSTOOD_TEXT,
+    DEFAULT_TEXTS,
+    HELP_TEXT,
+)
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.DEBUG if config.DEBUG else logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.DEBUG if config.DEBUG else logging.INFO,
 )
 
 NOT_NULL = "not Null"
@@ -26,26 +41,30 @@ NOT_NULL = "not Null"
 
 def build_menu_item_query(options):
     options = options.copy()
-    sql = 'SELECT * FROM menu_item where '
+    sql = "SELECT * FROM menu_item where "
     conditions = []
 
     skip_defaults = False
     if "skip_defaults" in options:
-        del options['skip_defaults']
+        del options["skip_defaults"]
         skip_defaults = True
 
-    defaults = {} if skip_defaults else {
-        "is_coffee": False,
-        "is_milk": False,
-        "is_lact_free_milk": False,
-        "is_vegan_milk": False,
-        "is_tea": False,
-        "is_matcha": False,
-        "is_season": False,
-        "is_black_coffee": False,
-        "is_fresh": False,
-        "available": True
-    }
+    defaults = (
+        {}
+        if skip_defaults
+        else {
+            "is_coffee": False,
+            "is_milk": False,
+            "is_lact_free_milk": False,
+            "is_vegan_milk": False,
+            "is_tea": False,
+            "is_matcha": False,
+            "is_season": False,
+            "is_black_coffee": False,
+            "is_fresh": False,
+            "available": True,
+        }
+    )
     for k, v in (defaults | options).items():
         if v is None:
             s = "is NULL"
@@ -55,85 +74,96 @@ def build_menu_item_query(options):
             s = "is not NULL"
         else:
             s = "= False"
-        conditions.append(f'{k} {s}')
+        conditions.append(f"{k} {s}")
 
-    return sql + ' AND '.join(conditions)
+    return sql + " AND ".join(conditions)
 
 
 def format_table(results_as_dict):
-    table = pt.PrettyTable(['Назва', 'Ціна'], hrules=ALL)
-    print(table)
-    table.align['Назва'] = 'l'
-    table.align['Ціна'] = 'r'
+    table = pt.PrettyTable(["Назва", "Ціна"], hrules=ALL)
+    table.align["Назва"] = "l"
+    table.align["Ціна"] = "r"
 
     for el in results_as_dict:
         name = el["name"]
-        price = el["price"]
+        price = str(el["price"])
+        alt_prices = el.get("alt_prices")
+        alt_prices_dict = json.loads(alt_prices)
+        if alt_prices_dict:
+            name += "\n" + "\n".join(alt_prices_dict.keys())
+            price += "\n" + "\n".join(map(str, alt_prices_dict.values()))
         table.add_row([name, price])
+
     return table
 
 
 async def get_menu_items(data, args):
     sql = build_menu_item_query(data)
-    print("this is query:", sql)
     result = await query_menu_items(sql)
     result = format_table(result)
-    args['text'] = 'Тримай Друже☺️:\n' f'```{result}```'
-    args['parse_mode'] = ParseMode.MARKDOWN_V2
+    args["text"] = "Тримай Друже☺️:\n" f"```{result}```"
+    args["parse_mode"] = ParseMode.MARKDOWN_V2
 
     return args
 
 
 async def get_random_item(data, args):
-    sql = build_menu_item_query(data) + ' ORDER BY RANDOM() LIMIT 1'
-    print("this is query:", sql)
+    sql = build_menu_item_query(data) + " ORDER BY RANDOM() LIMIT 1"
     result = await query_menu_items(sql)
     item = result[0]
-    args['text'] = f'Друже, спробуй \n<b>{item["name"]}</b> ({item["price"]} грн)\n' \
-                   f'{item["description"]} \n<b>{item["volume"]}</b> '
-    args['parse_mode'] = ParseMode.HTML
+    text = [
+        [f'Друже, спробуй \n<b>{item["name"]}</b> | {item["price"]} грн'],
+        [],
+        [f'\n{item["description"]} \n<b>{item["volume"]}</b> '],
+    ]
+    alt_price = json.loads(item["alt_prices"])
+    if alt_price:
+        prices = [f"{k}: {v} грн" for k, v in alt_price.items()]
+        text.insert(1, f' | {" | ".join(prices)}')
+    args["text"] = "".join("".join(ele) for ele in text)
+    args["parse_mode"] = ParseMode.HTML
 
     return args
 
 
 async def get_active_item(update: Update, context: CallbackContext, user: UserModel):
-    session_context = context.user_data.get('session_context') or []
-    print('session_context:', session_context)
+    session_context = context.user_data.get("session_context") or []
     menu_definition = await get_menu_definition(user)
     active_item = menu_definition
     for index in session_context:
-        print("active_item", active_item)
-        active_item = active_item['children'][index]
+        active_item = active_item["children"][index]
 
     message_text = update.message.text
 
     if message_text == HOME_BUTTON:
-        context.user_data['session_context'] = []
+        context.user_data["session_context"] = []
         active_item = menu_definition
-        active_item['reply'] = 'Давай спробуємо знову 😁'
+        active_item["reply"] = "Давай спробуємо знову 😁"
         return active_item
 
     elif message_text == BACK_TEXT and len(session_context):
         session_context = session_context[:-1]
-        context.user_data['session_context'] = session_context
+        context.user_data["session_context"] = session_context
         new_item = menu_definition
         for index in session_context:
-            new_item = new_item['children'][index]
+            new_item = new_item["children"][index]
         return new_item
     elif (message_text == ROLL_BUTTON or update.message.dice) and len(session_context):
         return RANDOM_MENU_ITEM
     elif message_text == HELP_BUTTON:
         return await help_command(update, context)
     else:
-        for key, button in active_item['children'].items():
-            if message_text == button['title']:
+        for key, button in active_item["children"].items():
+            if message_text == button["title"]:
                 session_context.append(key)
-                context.user_data['session_context'] = session_context
+                context.user_data["session_context"] = session_context
                 return button
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=MISUNDERSTOOD_TEXT)
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=MISUNDERSTOOD_TEXT
+        )
 
         if active_item == RANDOM_MENU_ITEM:
-            context.user_data['session_context'] = []
+            context.user_data["session_context"] = []
             return menu_definition
 
         return active_item
@@ -144,17 +174,27 @@ async def unverified_users(args, update: Update, context: CallbackContext):
 
     keyboard = []
     for row in users:
-        keyboard.append([InlineKeyboardButton(row.User.nickname, callback_data=json.dumps({
-            'method': 'verify', 'id': row.User.id,
-        }))])
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    row.User.nickname,
+                    callback_data=json.dumps(
+                        {
+                            "method": "verify",
+                            "id": row.User.id,
+                        }
+                    ),
+                )
+            ]
+        )
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='Unverified users:',
-        reply_markup=reply_markup
+        text="Unverified users:",
+        reply_markup=reply_markup,
     )
-    args['text'] = 'Please select user to verify'
+    args["text"] = "Please select user to verify"
 
     return args
 
@@ -166,98 +206,118 @@ def get_type_of_product():
 
 async def social_network_buttons(update: Update, context: CallbackContext):
     keyboard = [
-        [InlineKeyboardButton("INSTAGRAM", url="https://instagram.com/muscat_coffeeshop?igshid=YmMyMTA2M2Y=")],
-        [InlineKeyboardButton("TELEGRAM", url="https://t.me/muscat_coffee_people_chat")]
+        [
+            InlineKeyboardButton(
+                "INSTAGRAM",
+                url="https://instagram.com/muscat_coffeeshop?igshid=YmMyMTA2M2Y=",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "TELEGRAM", url="https://t.me/muscat_coffee_people_chat"
+            )
+        ],
     ]
-    await context.bot.sendPhoto(update.message.chat.id, photo=open('bot/test.jpeg', "rb"),
-                                reply_markup=InlineKeyboardMarkup(keyboard))
+    await context.bot.sendPhoto(
+        update.message.chat.id,
+        photo=open("bot/static/test.jpeg", "rb"),
+        reply_markup=InlineKeyboardMarkup(keyboard),
+    )
 
 
 async def get_samos_response(user_id):
     booking = await get_booking_for_user(user_id)
 
-    print("booking", booking)
     text = []
     for key, val in booking.items():
         if val.qty > 0:
-            text.append(f'{PRODUCTS[val.product_type]["plural_name"]}: <b>{val.qty}</b>')
-        print("text", text)
+            text.append(
+                f'{PRODUCTS[val.product_type]["plural_name"]}: <b>{val.qty}</b>'
+            )
 
     if len(text):
-        text = '\n'.join(text)
+        text = "\n".join(text)
     else:
-        text = 'Забронювати самоси:'
+        text = "Забронювати самоси:"
 
     keyboard = []
     for key, val in PRODUCTS.items():
         keyboard.append(
-            [InlineKeyboardButton(
-                f'+1 {val["single_name"]}', callback_data=json.dumps({
-                    'method': "order",
-                    'action': "+",
-                    'type': key,
-                }))]
+            [
+                InlineKeyboardButton(
+                    f'+1 {val["single_name"]}',
+                    callback_data=json.dumps(
+                        {
+                            "method": "order",
+                            "action": "+",
+                            "type": key,
+                        }
+                    ),
+                )
+            ]
         )
     keyboard_index = 0
     for key, val in PRODUCTS.items():
         if key in booking and booking[key].qty:
-            keyboard[keyboard_index].insert(0, InlineKeyboardButton(f'-1 {val["single_name"]}',
-                                                                    callback_data=json.dumps(
-                                                                        {
-                                                                            'method': "order",
-                                                                            'action': "-",
-                                                                            'type': key,
-                                                                        }))
-                                            )
+            keyboard[keyboard_index].insert(
+                0,
+                InlineKeyboardButton(
+                    f'-1 {val["single_name"]}',
+                    callback_data=json.dumps(
+                        {
+                            "method": "order",
+                            "action": "-",
+                            "type": key,
+                        }
+                    ),
+                ),
+            )
         keyboard_index += 1
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     return {
-        'reply_markup': reply_markup,
-        'text': text,
+        "reply_markup": reply_markup,
+        "text": text,
     }
 
 
 async def order_samos(args, update: Update, context: CallbackContext):
     r = await get_samos_response(update.effective_user.id)
 
-    context.user_data['session_context'] = []
-    print('update:', update)
-    args['text'] = r['text']
-    args['reply_markup'] = r['reply_markup']
-    args['parse_mode'] = ParseMode.HTML
+    context.user_data["session_context"] = []
+    args["text"] = r["text"]
+    args["reply_markup"] = r["reply_markup"]
+    args["parse_mode"] = ParseMode.HTML
 
     return args
 
 
 async def reply(update: Update, context: CallbackContext, active_item):
-    session_context = context.user_data.get('session_context') or []
-    print('session_context', session_context)
-    print('active_item', active_item)
+    session_context = context.user_data.get("session_context") or []
     buttons = []
-    if 'children' in active_item:
+    if "children" in active_item:
         row_values = []
-        for k, val in active_item['children'].items():
-            if 'row' in val:
-                row_values.append(val['row'])
+        for k, val in active_item["children"].items():
+            if "row" in val:
+                row_values.append(val["row"])
         for i in range(max(row_values) + 1):
             buttons.append([])
-        for item in active_item['children'].values():
-            if 'row' in item:
-                buttons[item['row']].append(KeyboardButton(item['title']))
+        for item in active_item["children"].values():
+            if "row" in item:
+                buttons[item["row"]].append(KeyboardButton(item["title"]))
             else:
-                buttons.append(KeyboardButton(item['title']))
+                buttons.append(KeyboardButton(item["title"]))
     if len(session_context) > 0:
         additional_buttons = [KeyboardButton(BACK_TEXT)]
         if len(session_context) > 1:
             additional_buttons.append(KeyboardButton(HOME_BUTTON))
-        if 'show_help' in active_item:
+        if "show_help" in active_item:
             additional_buttons.append(KeyboardButton(HELP_BUTTON))
         buttons.append(additional_buttons)
 
     args = {
-        'chat_id': update.effective_chat.id,
-        'text': active_item.get('reply') or random.choice(DEFAULT_TEXTS),
+        "chat_id": update.effective_chat.id,
+        "text": active_item.get("reply") or random.choice(DEFAULT_TEXTS),
     }
 
     if "callback" in active_item:
@@ -270,10 +330,8 @@ async def reply(update: Update, context: CallbackContext, active_item):
         elif active_item["callback"] == "order_samos":
             args = await order_samos(args, update, context)
 
-    if 'reply_markup' not in args:
-        args['reply_markup'] = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
-
-    print('update6:', update)
+    if "reply_markup" not in args:
+        args["reply_markup"] = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
     return await context.bot.send_message(**args)
 
@@ -288,9 +346,8 @@ async def handler(update: Update, context: CallbackContext):
 
 
 async def start(update: Update, context: CallbackContext):
-    print("def start this is context.user.data", context.user_data)
 
-    context.user_data['session_context'] = []
+    context.user_data["session_context"] = []
 
     user = await get_user(update)
     menu_definition = await get_menu_definition(user)
@@ -300,7 +357,7 @@ async def start(update: Update, context: CallbackContext):
 
 
 async def help_command(update: Update, context: CallbackContext):
-    context.user_data['session_context'] = context.user_data.get('session_context')
+    context.user_data["session_context"] = context.user_data.get("session_context")
 
     await update.message.reply_text(HELP_TEXT, parse_mode=ParseMode.HTML)
 
@@ -311,22 +368,19 @@ async def random_command(update: Update, context: CallbackContext):
 
 async def keyboard_callback(update, context):
     query = update.callback_query
-    print('query:', query)
 
     payload: dict = json.loads(query.data)
     if payload:
-        method = payload.get('method')
+        method = payload.get("method")
         if method:
-            if method == 'verify':
-                print('Verify')
-                user_id = payload.get('id')
-                print('id:', user_id)
+            if method == "verify":
+                user_id = payload.get("id")
                 await verify_user(user_id)
-                await query.answer(f'Verified')
-            elif method == 'order':
-                product_type = payload.get('type')
+                await query.answer(f"Verified")
+            elif method == "order":
+                product_type = payload.get("type")
                 user_id = update.effective_user.id
-                action = payload.get('action')
+                action = payload.get("action")
                 await booking(product_type, user_id, action, update)
 
 
@@ -336,21 +390,26 @@ async def booking(product_type, user_id, action, update):
     await update_booking_qty(user_id, product_type, action)
 
     r = await get_samos_response(update.effective_user.id)
-    await query.edit_message_text(text=r['text'], reply_markup=r['reply_markup'], parse_mode=ParseMode.HTML)
+    await query.edit_message_text(
+        text=r["text"], reply_markup=r["reply_markup"], parse_mode=ParseMode.HTML
+    )
 
 
 def main():
+    logging.info("Starting...")
     application = ApplicationBuilder().token(config.TOKEN).build()
 
-    application.add_handler(CommandHandler('start', start))
-    application.add_handler(CommandHandler('random', random_command))
-    application.add_handler(CommandHandler('help', help_command))
-    application.add_handler(MessageHandler((filters.TEXT | filters.Dice.DICE) & (~filters.COMMAND), handler))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("random", random_command))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(
+        MessageHandler((filters.TEXT | filters.Dice.DICE) & (~filters.COMMAND), handler)
+    )
 
     application.add_handler(CallbackQueryHandler(keyboard_callback))
 
     application.run_polling()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

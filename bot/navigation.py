@@ -1,37 +1,33 @@
 import random
 from copy import deepcopy
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 from models import User as UserModel
 
-ROLL_BUTTON = '🎲'
-HOME_BUTTON = '🏠'
-HELP_BUTTON = 'Допомога'
-BACK_TEXT = 'Назад'
-CHOOSE_BUTTONS = ['Оберіть:', '⬇️', '⤵️', '➡️', '🔽']
+ROLL_BUTTON = "🎲"
+HOME_BUTTON = "🏠"
+HELP_BUTTON = "Допомога"
+BACK_TEXT = "Назад"
+CHOOSE_BUTTONS = ["Оберіть:", "⬇️", "⤵️", "➡️", "🔽"]
 MISUNDERSTOOD_TEXT = "Вибачте, не зрозумів вас"
-DEFAULT_TEXTS = ['🙂', '😊', '🙃']
-HELP_TEXT = '''Вітаємо, це словничок скорочень Мускат Бота.
+DEFAULT_TEXTS = ["🙂", "😊", "🙃"]
+HELP_TEXT = """Вітаємо, це словничок скорочень Мускат Бота.
 <b>[Б/Л]</b> --> Замість звичайного молока використовується безлактозне.
 <b>[Р]</b> --> Замість звичайного молока використовується рослинне.
 <b>Іммерсія</b> --> Спосіб заварювання, шляхом постійного контакту води з тим, що ти заварюєш.
-'''
+"""
 RANDOM_MENU_ITEM = {
     "title": "Що мені випити?",
     "show_help": True,
     "row": 1,
-    "callback_data": {
-        "skip_defaults": True,
-        "is_deserts": False,
-        "available": True
-    },
+    "callback_data": {"skip_defaults": True, "is_deserts": False, "available": True},
     "callback": "get_random_item",
     "children": {
         "roll": {
             "row": 1,
             "title": ROLL_BUTTON,
         },
-    }
+    },
 }
 DRINKS = {
     "title": "Напої",
@@ -41,20 +37,17 @@ DRINKS = {
         "black_coffee": {
             "title": "Чорна кава",
             "row": 0,
-
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "callback_data": {
                 "is_coffee": True,
                 "is_black_coffee": True,
-
             },
             "callback": "get_menu_items",
         },
         "coffee_with_milk": {
             "title": "Кава з молоком",
             "row": 0,
-
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "callback_data": {
@@ -62,15 +55,13 @@ DRINKS = {
                 "is_season": False,
                 "is_milk": True,
                 "skip_defaults": True,
-                "available": True
-
+                "available": True,
             },
             "callback": "get_menu_items",
         },
         "coffee_with_juice": {
             "title": "На фреші",
             "row": 0,
-
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "callback_data": {
@@ -78,96 +69,78 @@ DRINKS = {
                 "is_fresh": True,
             },
             "callback": "get_menu_items",
-
         },
         "matcha": {
             "title": "Матча",
             "row": 2,
-
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "callback_data": {
                 "is_matcha": True,
                 "is_season": False,
                 "skip_defaults": True,
-                "available": True
+                "available": True,
             },
             "callback": "get_menu_items",
         },
         "tea": {
             "title": "Чай",
             "row": 2,
-
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "callback_data": {
                 "is_tea": True,
-
             },
             "callback": "get_menu_items",
         },
         "other": {
             "title": "Інше",
             "row": 2,
-
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "callback_data": {
                 "is_other": True,
                 "skip_defaults": True,
-                "available": True
+                "available": True,
             },
             "callback": "get_menu_items",
-
         },
-    }
+    },
 }
 DESERTS = {
     "title": "Десерти",
     "row": 1,
-
     "reply": "Тут ви зможете ознайомитись з тим, які десерти в нас бувають. ",
-    "callback_data": {
-        "is_deserts": True,
-        "skip_defaults": True,
-        "available": True
-    },
+    "callback_data": {"is_deserts": True, "skip_defaults": True, "available": True},
     "callback": "get_menu_items",
 }
 SEASON = {
     "title": "Сезонне меню",
     "row": 0,
-
     "children": {
-
         "coffee": {
             "title": "Кава",
             "row": 0,
-
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "callback_data": {
                 "is_coffee": True,
                 "skip_defaults": True,
                 "is_season": True,
-                "available": True
-
+                "available": True,
             },
             "callback": "get_menu_items",
-
         },
         "matcha": {
             "title": "Матча",
             "row": 0,
-
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "callback_data": {
                 "is_matcha": True,
                 "skip_defaults": True,
                 "is_season": True,
-                "available": True
-
+                "available": True,
             },
             "callback": "get_menu_items",
         },
@@ -176,36 +149,32 @@ SEASON = {
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "row": 0,
-
             "callback_data": {
                 "is_other": True,
                 "skip_defaults": True,
                 "is_season": True,
-                "available": True
-
+                "available": True,
             },
             "callback": "get_menu_items",
         },
-    }
+    },
 }
 
 MENU_DEFINITION = {
-    "reply": "👋 Вітаємо в діджиталізованому Мускаті 🙂",
+    "reply": "gif",
     "children": {
         "drinks": DRINKS,
         "deserts": DESERTS,
         "season": SEASON,
-        "random": RANDOM_MENU_ITEM
-
+        "random": RANDOM_MENU_ITEM,
     },
-
 }
 
 
 def get_next_saturday():
     d = date.today()
     t = timedelta((7 + 5 - d.weekday()) % 7)
-    return (d + t)  # .strftime('%Y-%m-%d')
+    return d + t  # .strftime('%Y-%m-%d')
 
 
 def samos_button_reveal():
@@ -226,21 +195,19 @@ async def get_menu_definition(user: UserModel):
         #     "reply": "😏",
         # }}
 
-        menu['children']['order_samos'] = {
+        menu["children"]["order_samos"] = {
             "title": "Бронювання самосів",
             "row": 2,
             "reply": random.choice(CHOOSE_BUTTONS),
-            "callback": 'order_samos',
+            "callback": "order_samos",
         }
 
     if user.is_admin:
-        menu['children']['user_verification'] = {
+        menu["children"]["user_verification"] = {
             "title": "Верифікувати юзера",
             "row": 2,
-
             "reply": " Оберіть юзернейм",
-            "callback": 'unverified_users',
-
+            "callback": "unverified_users",
         }
         # if not can_order:
         #     del menu['buttons'][2]
