@@ -101,7 +101,7 @@ DRINKS = {
             "callback": "get_menu_items",
         },
         "other": {
-            "title": "☕Какао",
+            "title": "☕ Какао",
             "row": 2,
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
