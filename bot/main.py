@@ -28,7 +28,7 @@ from navigation import (
     HELP_BUTTON,
     MISUNDERSTOOD_TEXT,
     DEFAULT_TEXTS,
-    HELP_TEXT,
+    HELP_TEXT, HOME_REPLY,
 )
 
 logging.basicConfig(
@@ -138,7 +138,7 @@ async def get_active_item(update: Update, context: CallbackContext, user: UserMo
     if message_text == HOME_BUTTON:
         context.user_data["session_context"] = []
         active_item = menu_definition
-        active_item["reply"] = "Давай спробуємо знову 😁"
+        active_item["reply"] = random.choice(HOME_REPLY)
         return active_item
 
     elif message_text == BACK_TEXT and len(session_context):

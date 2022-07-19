@@ -6,9 +6,16 @@ from models import User as UserModel
 
 ROLL_BUTTON = "🎲"
 HOME_BUTTON = "🏠"
+HOME_REPLY = ["Давай спробуємо знову 😁",
+              "Не знаєш що хочеш? Давай може я щось запропоною? 🎲",
+              "А ти вже дивився наше сезоне меню?🤔",
+              "Може по еклерчику? 🤤"]
 HELP_BUTTON = "Допомога"
 BACK_TEXT = "Назад"
 CHOOSE_BUTTONS = ["Оберіть:", "⬇️", "⤵️", "➡️", "🔽"]
+WELCOME_TEXT = ["👋 Вітаємо в діджиталізованому Мускаті 🙂",
+                "👋 Раді тебе бачити!",
+                "👋 Привіт! Давай підберемо тобі щось смачненьке 🤗"]
 MISUNDERSTOOD_TEXT = "Вибачте, не зрозумів вас"
 DEFAULT_TEXTS = ["🙂", "😊", "🙃"]
 HELP_TEXT = """Вітаємо, це словничок скорочень Мускат Бота.
@@ -17,7 +24,7 @@ HELP_TEXT = """Вітаємо, це словничок скорочень Мус
 <b>Іммерсія</b> --> Спосіб заварювання, шляхом постійного контакту води з тим, що ти заварюєш.
 """
 RANDOM_MENU_ITEM = {
-    "title": "Що мені випити?",
+    "title": "🎲 Що мені випити?",
     "show_help": True,
     "row": 1,
     "callback_data": {"skip_defaults": True, "is_deserts": False, "available": True},
@@ -30,12 +37,12 @@ RANDOM_MENU_ITEM = {
     },
 }
 DRINKS = {
-    "title": "Напої",
+    "title": "🥤 Напої",
     "row": 0,
     "reply": random.choice(CHOOSE_BUTTONS),
     "children": {
         "black_coffee": {
-            "title": "Чорна кава",
+            "title": "♨ Чорна кава",
             "row": 0,
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
@@ -46,7 +53,7 @@ DRINKS = {
             "callback": "get_menu_items",
         },
         "coffee_with_milk": {
-            "title": "Кава з молоком",
+            "title": "🥛 Кава з молоком",
             "row": 0,
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
@@ -60,7 +67,7 @@ DRINKS = {
             "callback": "get_menu_items",
         },
         "coffee_with_juice": {
-            "title": "На фреші",
+            "title": "🍹 На фреші",
             "row": 0,
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
@@ -71,7 +78,7 @@ DRINKS = {
             "callback": "get_menu_items",
         },
         "matcha": {
-            "title": "Матча",
+            "title": "🍵 Матча",
             "row": 2,
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
@@ -84,7 +91,7 @@ DRINKS = {
             "callback": "get_menu_items",
         },
         "tea": {
-            "title": "Чай",
+            "title": "🫖 Чай",
             "row": 2,
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
@@ -94,7 +101,7 @@ DRINKS = {
             "callback": "get_menu_items",
         },
         "other": {
-            "title": "Інше",
+            "title": "☕Какао",
             "row": 2,
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
@@ -108,18 +115,18 @@ DRINKS = {
     },
 }
 DESERTS = {
-    "title": "Десерти",
+    "title": "🧁 Десерти",
     "row": 1,
     "reply": "Тут ви зможете ознайомитись з тим, які десерти в нас бувають. ",
     "callback_data": {"is_deserts": True, "skip_defaults": True, "available": True},
     "callback": "get_menu_items",
 }
 SEASON = {
-    "title": "Сезонне меню",
+    "title": "🍹 Сезоне меню",
     "row": 0,
     "children": {
         "coffee": {
-            "title": "Кава",
+            "title": "♨ На каві",
             "row": 0,
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
@@ -132,7 +139,7 @@ SEASON = {
             "callback": "get_menu_items",
         },
         "matcha": {
-            "title": "Матча",
+            "title": "🍵 На матчі",
             "row": 0,
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
@@ -145,7 +152,7 @@ SEASON = {
             "callback": "get_menu_items",
         },
         "other": {
-            "title": "Інше",
+            "title": "🧋 Інше",
             "reply": random.choice(CHOOSE_BUTTONS),
             "show_help": True,
             "row": 0,
@@ -161,7 +168,7 @@ SEASON = {
 }
 
 MENU_DEFINITION = {
-    "reply": "👋 Вітаємо в діджиталізованому Мускаті 🙂",
+    "reply": random.choice(WELCOME_TEXT),
     "children": {
         "drinks": DRINKS,
         "deserts": DESERTS,
