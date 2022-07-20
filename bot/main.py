@@ -101,7 +101,8 @@ async def get_menu_items(data, args):
     sql = build_menu_item_query(data)
     result = await query_menu_items(sql)
     result = format_table(result)
-    args["text"] = "Тримай Друже☺️:\n" f"```{result}```"
+    smile = random.choice(['☺️', '😉', '🙂'])
+    args["text"] = f"Тримай Друже {smile}\n\n" f"```{result}```"
     args["parse_mode"] = ParseMode.MARKDOWN_V2
 
     return args
