@@ -135,7 +135,7 @@ async def random_button_inline(update, context, active_item):
     keyboard = [
         [
             InlineKeyboardButton(
-                ROLL_BUTTON + "Натисни мене" + ROLL_BUTTON,
+                ROLL_BUTTON + " Натисни мене " + ROLL_BUTTON,
                 callback_data=json.dumps({"method": "random"}),
             )
         ]
