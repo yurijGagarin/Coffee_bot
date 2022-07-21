@@ -362,8 +362,11 @@ async def handler(update: Update, context: CallbackContext):
     user = await get_user(update)
 
     active_item = await get_active_item(update=update, context=context, user=user)
-    if active_item["reply"] == HOME_REPLY_WITH_RANDOM:
-        await random_button_inline(update, context, active_item)
+    try:
+        if active_item["reply"] == HOME_REPLY_WITH_RANDOM:
+            await random_button_inline(update, context, active_item)
+    except KeyError:
+        pass
 
     if active_item:
         await reply(update=update, context=context, active_item=active_item)
