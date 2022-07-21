@@ -11,4 +11,5 @@ venv
 
 
 .env
+.gitignore
 /bot/static/

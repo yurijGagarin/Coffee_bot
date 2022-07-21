@@ -22,13 +22,14 @@ from models import User as UserModel
 from navigation import (
     get_menu_definition,
     HOME_BUTTON,
+    HOME_REPLY_WITH_RANDOM,
     BACK_TEXT,
     ROLL_BUTTON,
-    RANDOM_MENU_ITEM,
+    get_random_menu_item_btn,
     HELP_BUTTON,
     MISUNDERSTOOD_TEXT,
     DEFAULT_TEXTS,
-    HELP_TEXT, HOME_REPLY,
+    HELP_TEXT, HOME_REPLY, WELCOME_TEXT,
 )
 
 logging.basicConfig(
@@ -37,6 +38,7 @@ logging.basicConfig(
 )
 
 NOT_NULL = "not Null"
+SOCIAL_NETWORK_GIF = "CgACAgIAAxkBAAIrjGLZrt-12f_XNhD9Jb6kGPx6c382AAKfHQAC2onRSon3dI6yX2JGKQQ"
 
 
 def build_menu_item_query(options):
@@ -109,6 +111,8 @@ async def get_menu_items(data, args):
 
 
 async def get_random_item(data, args):
+    print("data", data)
+    print("args", args)
     sql = build_menu_item_query(data) + " ORDER BY RANDOM() LIMIT 1"
     result = await query_menu_items(sql)
     item = result[0]
@@ -127,6 +131,23 @@ async def get_random_item(data, args):
     return args
 
 
+async def random_button_inline(update, context, active_item):
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                ROLL_BUTTON + "Натисни мене" + ROLL_BUTTON,
+                callback_data=json.dumps({"method": "random"}),
+            )
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await context.bot.send_message(
+        update.message.chat.id,
+        text="Не знаєш, що хочеш?\nДавай може я щось запропоную?",
+        reply_markup=reply_markup)
+    return active_item
+
+
 async def get_active_item(update: Update, context: CallbackContext, user: UserModel):
     session_context = context.user_data.get("session_context") or []
     menu_definition = await get_menu_definition(user)
@@ -139,7 +160,7 @@ async def get_active_item(update: Update, context: CallbackContext, user: UserMo
     if message_text == HOME_BUTTON:
         context.user_data["session_context"] = []
         active_item = menu_definition
-        active_item["reply"] = random.choice(HOME_REPLY)
+
         return active_item
 
     elif message_text == BACK_TEXT and len(session_context):
@@ -150,7 +171,7 @@ async def get_active_item(update: Update, context: CallbackContext, user: UserMo
             new_item = new_item["children"][index]
         return new_item
     elif (message_text == ROLL_BUTTON or update.message.dice) and len(session_context):
-        return RANDOM_MENU_ITEM
+        return get_random_menu_item_btn()
     elif message_text == HELP_BUTTON:
         return await help_command(update, context)
     else:
@@ -163,7 +184,7 @@ async def get_active_item(update: Update, context: CallbackContext, user: UserMo
             chat_id=update.effective_chat.id, text=MISUNDERSTOOD_TEXT
         )
 
-        if active_item == RANDOM_MENU_ITEM:
+        if active_item == get_random_menu_item_btn():
             context.user_data["session_context"] = []
             return menu_definition
 
@@ -189,7 +210,7 @@ async def unverified_users(args, update: Update, context: CallbackContext):
             ]
         )
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    reply_markup = InlineKeyboardMarkup(keyboard, resize_keyboard=True)
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Unverified users:",
@@ -200,30 +221,24 @@ async def unverified_users(args, update: Update, context: CallbackContext):
     return args
 
 
-def get_type_of_product():
-    types_of_products = PRODUCTS.keys()
-    return types_of_products
+async def social_network_buttons(args):
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                "INSTAGRAM",
+                url="https://instagram.com/muscat_coffeeshop?igshid=YmMyMTA2M2Y=",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "TELEGRAM", url="https://t.me/muscat_coffee_people_chat"
+            )
+        ],
+    ]
+    args['animation'] = SOCIAL_NETWORK_GIF
+    args['reply_markup'] = InlineKeyboardMarkup(keyboard)
 
-
-# async def social_network_buttons(update: Update, context: CallbackContext):
-#     keyboard = [
-#         [
-#             InlineKeyboardButton(
-#                 "INSTAGRAM",
-#                 url="https://instagram.com/muscat_coffeeshop?igshid=YmMyMTA2M2Y=",
-#             )
-#         ],
-#         [
-#             InlineKeyboardButton(
-#                 "TELEGRAM", url="https://t.me/muscat_coffee_people_chat"
-#             )
-#         ],
-#     ]
-#     await context.bot.sendPhoto(
-#         update.message.chat.id,
-#         photo=open("bot/static/test.jpeg", "rb"),
-#         reply_markup=InlineKeyboardMarkup(keyboard),
-#     )
+    return args
 
 
 async def get_samos_response(user_id):
@@ -330,10 +345,16 @@ async def reply(update: Update, context: CallbackContext, active_item):
             args = await unverified_users(args, update, context)
         elif active_item["callback"] == "order_samos":
             args = await order_samos(args, update, context)
+        elif active_item["callback"] == "social_networks":
+            args = await social_network_buttons(args)
 
     if "reply_markup" not in args:
         args["reply_markup"] = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
+    if "animation" in args:
+        del args['text']
+        context.user_data["session_context"] = []
+        return await context.bot.sendAnimation(**args)
     return await context.bot.send_message(**args)
 
 
@@ -341,29 +362,30 @@ async def handler(update: Update, context: CallbackContext):
     user = await get_user(update)
 
     active_item = await get_active_item(update=update, context=context, user=user)
+    if active_item["reply"] == HOME_REPLY_WITH_RANDOM:
+        await random_button_inline(update, context, active_item)
 
     if active_item:
         await reply(update=update, context=context, active_item=active_item)
 
 
 async def start(update: Update, context: CallbackContext):
-
     context.user_data["session_context"] = []
 
     user = await get_user(update)
     menu_definition = await get_menu_definition(user)
-    # await social_network_buttons(update, context)
+    active_item = menu_definition
+    active_item['reply'] = random.choice(WELCOME_TEXT)
     await reply(update, context, menu_definition)
 
 
 async def help_command(update: Update, context: CallbackContext):
     context.user_data["session_context"] = context.user_data.get("session_context")
-
     await update.message.reply_text(HELP_TEXT, parse_mode=ParseMode.HTML)
 
 
 async def random_command(update: Update, context: CallbackContext):
-    await reply(update, context, active_item=RANDOM_MENU_ITEM)
+    await reply(update, context, active_item=get_random_menu_item_btn())
 
 
 async def keyboard_callback(update, context):
@@ -382,6 +404,9 @@ async def keyboard_callback(update, context):
                 user_id = update.effective_user.id
                 action = payload.get("action")
                 await booking(product_type, user_id, action, update)
+            elif method == "random":
+                context.user_data['session_context'] = ['random']
+                await reply(update, context, get_random_menu_item_btn())
 
 
 async def booking(product_type, user_id, action, update):
