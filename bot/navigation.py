@@ -2,6 +2,8 @@ import random
 from copy import deepcopy
 from datetime import date, timedelta
 
+from telegram import KeyboardButton
+
 from models import User as UserModel
 
 ROLL_BUTTON = "🎲"
@@ -203,11 +205,28 @@ def get_next_saturday():
 
 def samos_button_reveal():
     today = date.today()
-    available_days = [0, 1, 2, 3, 6]
+    available_days = [0, 1, 2, 3, 4, 6]
     can_order = False
     if today.weekday() in available_days:
         can_order = True
     return can_order
+
+
+async def build_buttons(active_item):
+    buttons = []
+    if "children" in active_item:
+        row_values = []
+        for k, val in active_item["children"].items():
+            if "row" in val:
+                row_values.append(val["row"])
+        for i in range(max(row_values) + 1):
+            buttons.append([])
+        for item in active_item["children"].values():
+            if "row" in item:
+                buttons[item["row"]].append(KeyboardButton(item["title"]))
+            else:
+                buttons.append(KeyboardButton(item["title"]))
+    return buttons
 
 
 async def get_menu_definition(user: UserModel):
@@ -239,6 +258,12 @@ async def get_menu_definition(user: UserModel):
 
     if user.is_admin:
         menu["children"]["user_verification"] = verification_user_btn()
+        menu["children"]["notifications"] = {
+            "title": "Розсилка",
+            "row": 2,
+            "reply": "Вкажіть текст",
+            "callback": "notifications",
+        }
         # if not can_order:
         #     del menu['buttons'][2]
 

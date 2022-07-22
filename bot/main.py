@@ -1,10 +1,13 @@
+import asyncio
 import json
 import logging
 import random
 
+import aioschedule as schedule
 import prettytable as pt
 from prettytable import ALL
 from telegram import *
+from telegram._bot import BT
 from telegram.constants import ParseMode
 from telegram.ext import *
 
@@ -16,8 +19,7 @@ from db import (
     verify_user,
     get_verified_user,
     update_booking_qty,
-    get_booking_for_user,
-)
+    get_booking_for_user, )
 from models import User as UserModel
 from navigation import (
     get_menu_definition,
@@ -29,7 +31,7 @@ from navigation import (
     HELP_BUTTON,
     MISUNDERSTOOD_TEXT,
     DEFAULT_TEXTS,
-    HELP_TEXT, WELCOME_TEXT,
+    HELP_TEXT, WELCOME_TEXT, build_buttons,
 )
 
 logging.basicConfig(
@@ -310,19 +312,7 @@ async def order_samos(args, update: Update, context: CallbackContext):
 
 async def reply(update: Update, context: CallbackContext, active_item):
     session_context = context.user_data.get("session_context") or []
-    buttons = []
-    if "children" in active_item:
-        row_values = []
-        for k, val in active_item["children"].items():
-            if "row" in val:
-                row_values.append(val["row"])
-        for i in range(max(row_values) + 1):
-            buttons.append([])
-        for item in active_item["children"].values():
-            if "row" in item:
-                buttons[item["row"]].append(KeyboardButton(item["title"]))
-            else:
-                buttons.append(KeyboardButton(item["title"]))
+    buttons = await build_buttons(active_item)
     if len(session_context) > 0:
         additional_buttons = [KeyboardButton(BACK_TEXT)]
         if len(session_context) > 1:
@@ -437,7 +427,31 @@ def main():
 
     application.add_handler(CallbackQueryHandler(keyboard_callback))
 
+    loop = asyncio.get_event_loop()
+
+    loop.create_task(start_schedules(application.bot))
+
     application.run_polling()
+
+
+async def start_schedules(bot):
+    print('start_schedules')
+    # schedule.every(5).seconds.do(send_notification, bot=bot)
+    # schedule.every().wednesday.at("13:15").do(send_pre_order_notification, bot=bot)
+
+    while True:
+        await asyncio.sleep(1000)
+        await schedule.run_pending()
+
+
+async def send_pre_order_notification(bot: BT):
+    ...
+
+
+async def send_notification(bot: BT):
+    print("Start checking  scheduled notifications:")
+
+    # await send_message_to_users(bot, [], 'Hello :wave')
 
 
 if __name__ == "__main__":

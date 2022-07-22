@@ -74,6 +74,6 @@ class Booking(Base):
 
     def __repr__(self):
         return (
-            "<Booking(id='%s' user_id='%s', order_date='%s', product_type='%s', qty='%s')>"
-            % (self.id, self.user_id, self.order_date, self.product_type, self.qty)
+                "<Booking(id='%s' user_id='%s', order_date='%s', product_type='%s', qty='%s')>"
+                % (self.id, self.user_id, self.order_date, self.product_type, self.qty)
         )
