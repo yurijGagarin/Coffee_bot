@@ -6,7 +6,7 @@ from models import User as UserModel
 
 ROLL_BUTTON = "🎲"
 HOME_BUTTON = "🏠"
-HOME_REPLY_WITH_RANDOM = "Надіємось тобі сподобається ☺️"
+HOME_REPLY_WITH_RANDOM = "Сподіваюсь тобі сподобається ☺️"
 HOME_REPLY = [
     HOME_REPLY_WITH_RANDOM,
     "Давай спробуємо знову 😁",
