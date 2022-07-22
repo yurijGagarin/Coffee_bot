@@ -3,14 +3,12 @@ import logging
 import random
 
 import prettytable as pt
-import telegram
 from prettytable import ALL
 from telegram import *
 from telegram.constants import ParseMode
 from telegram.ext import *
 
 import config
-from bot.user_notifications import send_message_to_active_user
 from constants import PRODUCTS
 from db import (
     query_menu_items,
@@ -31,7 +29,7 @@ from navigation import (
     HELP_BUTTON,
     MISUNDERSTOOD_TEXT,
     DEFAULT_TEXTS,
-    HELP_TEXT, HOME_REPLY, WELCOME_TEXT,
+    HELP_TEXT, WELCOME_TEXT,
 )
 
 logging.basicConfig(
