@@ -83,17 +83,6 @@ def get_drinks():
                 },
                 "callback": "get_menu_items",
             },
-            "coffee_with_juice": {
-                "title": "🍹 На фреші",
-                "row": 0,
-                "reply": random.choice(CHOOSE_BUTTONS),
-                "show_help": True,
-                "callback_data": {
-                    "is_coffee": True,
-                    "is_fresh": True,
-                },
-                "callback": "get_menu_items",
-            },
             "matcha": {
                 "title": "🍵 Матча",
                 "row": 2,
@@ -118,7 +107,7 @@ def get_drinks():
                 "callback": "get_menu_items",
             },
             "other": {
-                "title": "♨ Какао",
+                "title": "🧋 Інше",
                 "row": 2,
                 "reply": random.choice(CHOOSE_BUTTONS),
                 "show_help": True,
@@ -126,6 +115,7 @@ def get_drinks():
                     "is_other": True,
                     "skip_defaults": True,
                     "available": True,
+                    "is_season": False,
                 },
                 "callback": "get_menu_items",
             },
@@ -147,6 +137,7 @@ def get_season_menu():
     return {
         "title": "🍹 Сезоне меню",
         "row": 0,
+        "reply": random.choice(CHOOSE_BUTTONS),
         "children": {
             "coffee": {
                 "title": "☕ На каві",

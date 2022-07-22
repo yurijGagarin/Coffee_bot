@@ -44,6 +44,10 @@ async def get_verified_user(status):
     return await getting_users_from_session(User.is_verified == status)
 
 
+async def get_admin_users():
+    return await getting_users_from_session(User.is_admin)
+
+
 async def query_menu_items(sql_query):
     async with async_session() as session:
         r = await session.execute(sql_query)
